@@ -10,7 +10,7 @@ from sacred.observers import FileStorageObserver
 from sacred.observers import MongoObserver
 from sacred.utils import apply_backspaces_and_linefeeds
 import sys
-from utils.logging import get_logger, Logger
+from utils.logging import get_logger
 from utils.dict2namedtuple import convert
 import yaml
 
@@ -92,7 +92,7 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     return trainers
 
 
-def train(arglist, logger):
+def train(arglist):
     with U.single_threaded_session():
         # Create environment
         env = make_env(arglist.scenario, arglist, arglist.benchmark)
@@ -191,11 +191,8 @@ def train(arglist, logger):
                 t_start = time.time()
                 # Keep track of final episode reward
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
-                prefix = "" # not sure if test or train wtf
-                logger.log_stat(prefix + "return_mean", np.mean(episode_rewards[-arglist.save_rate:]), train_step)
-                for _i, rew in enumerate(agent_rewards):
+                for rew in agent_rewards:
                     final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
-                    logger.log_stat(prefix + "return_mean_agent{}".format(_i), np.mean(rew[-arglist.save_rate:]), train_step)
 
             # saves final episode reward for plotting training curve later
             if len(episode_rewards) > arglist.num_episodes:
@@ -207,6 +204,23 @@ def train(arglist, logger):
                     pickle.dump(final_ep_ag_rewards, fp)
                 print('...Finished total of {} episodes.'.format(len(episode_rewards)))
                 break
+
+# if __name__ == '__main__':
+#     arglist = parse_args()
+#     train(arglist)
+
+
+
+# Create an Experiment instance
+# ex = Experiment()
+
+# # This function should be executed so we are decorating it with @ex.automain
+# @ex.automain
+# def main():
+#     print('Hello world!')
+#     a = 5
+#     arglist = parse_args()
+#     train(arglist)
 
 
 SETTINGS['CAPTURE_MODE'] = "fd" # set to "no" if you want to see stdout/stderr in console
@@ -251,7 +265,7 @@ def setup_mongodb(db_url, db_name):
 
 
 @ex.main
-def my_main(_run, _config, _log):
+def my_main(_run, _config, _log, arglist):
     global mongo_client
 
     import datetime
@@ -259,17 +273,7 @@ def my_main(_run, _config, _log):
     # run the framework
     # run(_run, _config, _log, mongo_client, unique_token)
     arglist = parse_args()
-
-    logger = Logger(_log)
-    # configure tensorboard logger
-    unique_token = "{}__{}".format(arglist.exp_name, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    use_tensorboard = False
-    if use_tensorboard:
-        tb_logs_direc = os.path.join(dirname(dirname(abspath(__file__))), "results", "tb_logs")
-        tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
-        logger.setup_tb(tb_exp_direc)
-    logger.setup_sacred(_run)
-    train(arglist, logger)
+    train(arglist)
     # arglist = convert(_config)
     #train(arglist)
 

@@ -1,0 +1,26 @@
+{
+  "return_mean": [
+    -676.0265588633845
+  ],
+  "return_mean_T": [
+    24975
+  ],
+  "return_mean_agent0": [
+    -225.34218628779485
+  ],
+  "return_mean_agent0_T": [
+    24975
+  ],
+  "return_mean_agent1": [
+    -225.34218628779485
+  ],
+  "return_mean_agent1_T": [
+    24975
+  ],
+  "return_mean_agent2": [
+    -225.34218628779485
+  ],
+  "return_mean_agent2_T": [
+    24975
+  ]
+}
