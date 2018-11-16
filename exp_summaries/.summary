@@ -1,0 +1,6 @@
+pymarl_path: /home/cs/Documents/maddpg
+python_path: :/maddpg
+results_path: /home/cs/Documents/maddpg/results
+    name: __run__16_11_18-22_48_41__repeat1
+    gpu: 0
+    docker_hash: qSLZ
