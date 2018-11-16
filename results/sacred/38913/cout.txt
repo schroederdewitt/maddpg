@@ -1,0 +1,22 @@
+[INFO 22:20:20] pymarl Running command 'my_main'
+[INFO 22:20:20] pymarl Started run with ID "38913"
+[DEBUG 22:20:20] pymarl Starting Heartbeat
+[DEBUG 22:20:20] my_main Started
+2018-11-16 22:20:20.574666: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-11-16 22:20:20.724091: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties: 
+name: TITAN Xp major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:02:00.0
+totalMemory: 11.91GiB freeMemory: 11.74GiB
+2018-11-16 22:20:20.824284: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 1 with properties: 
+name: GeForce GTX TITAN X major: 5 minor: 2 memoryClockRate(GHz): 1.2155
+pciBusID: 0000:01:00.0
+totalMemory: 11.92GiB freeMemory: 10.78GiB
+2018-11-16 22:20:20.824323: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1
+2018-11-16 22:20:21.420736: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-16 22:20:21.420793: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 1 
+2018-11-16 22:20:21.420799: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N N 
+2018-11-16 22:20:21.420804: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1:   N N 
+2018-11-16 22:20:21.421219: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 11361 MB memory) -> physical GPU (device: 0, name: TITAN Xp, pci bus id: 0000:02:00.0, compute capability: 6.1)
+2018-11-16 22:20:21.421575: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 10425 MB memory) -> physical GPU (device: 1, name: GeForce GTX TITAN X, pci bus id: 0000:01:00.0, compute capability: 5.2)
+Using good policy maddpg and adv policy maddpg
+Starting iterations...

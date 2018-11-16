@@ -11,6 +11,6 @@ else
    reps=$3
 fi 
 
-cmd_line="--scenario simple_spread --exp-name MADDPG1"
+cmd_line=" --scenario simple_spread "
 
 ${MADDPG_PATH}/exp_scripts_alt/run.sh "${target}" "${cmd_line}" "${tag}" "${reps}"
