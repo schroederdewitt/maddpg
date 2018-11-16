@@ -31,8 +31,6 @@ RUN apt-get update && apt-get install -y python3-pip
 #### -------------------------------------------------------------------
 RUN pip3 install --upgrade tensorflow-gpu
 
-
-
 EXPOSE 8888
 
-WORKDIR /pymarl
+WORKDIR /maddpg
