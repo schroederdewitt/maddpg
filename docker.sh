@@ -1,6 +1,6 @@
 #!/bin/bash
 HASH=$1
-name=${USER}_maddpg_refactor_GPU_${GPU}_${HASH}
+name=${USER}_maddpg_GPU_${GPU}_${HASH}
 
 echo "Launching container named '${name}' on GPU '${GPU}'"
 # Launches a docker container using our image, and runs the provided command
