@@ -17,7 +17,7 @@ if [ -z "$MADDPG_RESULTS_PATH" ]; then
     RESULTS_PATH="${MADDPG_PATH}/results"
     mkdir -p $RESULTS_PATH
 else
-    RESULTS_PATH=$PYMARL_RESULTS_PATHs
+    RESULTS_PATH=$MADDPG_RESULTS_PATH
 fi
 
 echo "HASH: ${HASH}"
