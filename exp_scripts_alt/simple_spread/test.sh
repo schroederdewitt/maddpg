@@ -13,4 +13,4 @@ fi
 
 cmd_line="--scenario simple_spread --exp-name MADDPG1"
 
-${PYMARL_PATH}/exp_scripts_alt/run.sh "${target}" "${cmd_line}" "${tag}" "${reps}"
+${MADDPG_PATH}/exp_scripts_alt/run.sh "${target}" "${cmd_line}" "${tag}" "${reps}"
