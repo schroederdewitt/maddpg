@@ -38,5 +38,5 @@ ${cmd} run -d --rm \
 
 #    -v $RESULTS_PATH:/pymarl/results \
 
-docker exec -it -u root $name /bin/bash
+# docker exec -it -u root $name /bin/bash
 
