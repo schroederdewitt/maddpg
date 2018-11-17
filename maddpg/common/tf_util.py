@@ -158,17 +158,18 @@ def get_session():
     return tf.get_default_session()
 
 
-def make_session(num_cpu):
+def make_session(num_cpu, frac=None):
     """Returns a session that will use <num_cpu> CPU's only"""
     tf_config = tf.ConfigProto(
         inter_op_parallelism_threads=num_cpu,
-        intra_op_parallelism_threads=num_cpu)
+        intra_op_parallelism_threads=num_cpu,
+        gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=frac if frac is not None else 1.0))
     return tf.Session(config=tf_config)
 
 
-def single_threaded_session():
+def single_threaded_session(frac=None):
     """Returns a session which will only use a single CPU"""
-    return make_session(1)
+    return make_session(1, frac=frac)
 
 
 ALREADY_INITIALIZED = set()

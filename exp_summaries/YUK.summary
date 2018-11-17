@@ -1,0 +1,12 @@
+pymarl_path: /home/cs/Documents/maddpg
+python_path: :/maddpg
+results_path: /home/cs/Documents/maddpg/results
+    name: YUK__run__17_11_18-19_26_29__repeat1
+    gpu: 0
+    docker_hash: oI0T
+    name: YUK__run__17_11_18-19_26_29__repeat2
+    gpu: 0
+    docker_hash: QvYO
+    name: YUK__run__17_11_18-19_26_29__repeat3
+    gpu: 0
+    docker_hash: AbxN

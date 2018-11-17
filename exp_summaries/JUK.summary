@@ -1,0 +1,9 @@
+pymarl_path: /home/cs/Documents/maddpg
+python_path: :/maddpg
+results_path: /home/cs/Documents/maddpg/results
+    name: JUK__run__17_11_18-19_22_14__repeat1
+    gpu: 1
+    docker_hash: K9c1
+    name: JUK__run__17_11_18-19_22_14__repeat2
+    gpu: 1
+    docker_hash: 27om
