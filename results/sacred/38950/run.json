@@ -17,7 +17,7 @@
     "sources": [
       [
         "train.py",
-        "_sources/train_1280a324bdecb8cbdcff04c5c55c019d.py"
+        "_sources/train_b320093cce78bc72cb1fa6beb1c8878e.py"
       ]
     ]
   },
@@ -31,14 +31,16 @@
     "Traceback (most recent call last):\n",
     "  File \"/home/cs/Documents/maddpg/venv/maddpg/lib/python3.6/site-packages/sacred/config/captured_function.py\", line 46, in captured_function\n    result = wrapped(*args, **kwargs)\n",
     "  File \"/home/cs/Documents/maddpg/experiments/train.py\", line 272, in my_main\n    train(arglist, logger)\n",
-    "  File \"/home/cs/Documents/maddpg/experiments/train.py\", line 195, in train\n    logger.log_stat(prefix + \"return_mean\", np.mean(episode_rewards[-arglist.save_rate:]), train_step)\n",
-    "  File \"/home/cs/Documents/maddpg/experiments/train.py\", line 195, in train\n    logger.log_stat(prefix + \"return_mean\", np.mean(episode_rewards[-arglist.save_rate:]), train_step)\n",
+    "  File \"/home/cs/Documents/maddpg/experiments/train.py\", line 96, in train\n    with U.single_threaded_session(frac=0.2):\n",
+    "  File \"/home/cs/Documents/maddpg/maddpg/common/tf_util.py\", line 172, in single_threaded_session\n    def single_threaded_session(frac=None):\n",
+    "  File \"/home/cs/Documents/maddpg/maddpg/common/tf_util.py\", line 167, in make_session\n    )\n",
+    "  File \"/home/cs/Documents/maddpg/maddpg/common/tf_util.py\", line 167, in make_session\n    )\n",
     "  File \"/home/cs/Tools/pycharm/helpers/pydev/_pydevd_bundle/pydevd_frame.py\", line 620, in trace_dispatch\n    self.do_wait_suspend(thread, frame, event, arg)\n",
     "  File \"/usr/lib/python3.6/traceback.py\", line 159, in print_exc\n    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)\n",
     "  File \"/usr/lib/python3.6/traceback.py\", line 101, in print_exception\n    print(line, file=file, end=\"\")\n",
     "BrokenPipeError: [Errno 32] Broken pipe\n"
   ],
-  "heartbeat": "2018-11-17T20:17:08.517935",
+  "heartbeat": "2018-11-17T20:19:34.338479",
   "host": {
     "ENV": {},
     "cpu": "Intel(R) Core(TM) i7-7820HK CPU @ 2.90GHz",
@@ -88,7 +90,7 @@
   },
   "resources": [],
   "result": null,
-  "start_time": "2018-11-17T18:12:51.002077",
+  "start_time": "2018-11-17T20:17:21.035135",
   "status": "FAILED",
-  "stop_time": "2018-11-17T20:17:08.524137"
+  "stop_time": "2018-11-17T20:19:34.345223"
 }

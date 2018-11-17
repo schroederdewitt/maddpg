@@ -163,7 +163,9 @@ def make_session(num_cpu, frac=None):
     tf_config = tf.ConfigProto(
         inter_op_parallelism_threads=num_cpu,
         intra_op_parallelism_threads=num_cpu,
-        gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=frac if frac is not None else 1.0))
+        #gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=frac if frac is not None else 1.0)
+        )
+    tf_config.gpu_options.allow_growth = True
     return tf.Session(config=tf_config)
 
 
