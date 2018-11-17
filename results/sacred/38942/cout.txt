@@ -1,0 +1,16 @@
+[INFO 18:12:22] pymarl Running command 'my_main'
+[INFO 18:12:22] pymarl Started run with ID "38942"
+[DEBUG 18:12:22] pymarl Starting Heartbeat
+[DEBUG 18:12:22] my_main Started
+2018-11-17 18:12:22.940531: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-11-17 18:12:23.124226: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-17 18:12:23.124598: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties: 
+name: GeForce GTX 1080 with Max-Q Design major: 6 minor: 1 memoryClockRate(GHz): 1.468
+pciBusID: 0000:01:00.0
+totalMemory: 7.92GiB freeMemory: 7.40GiB
+2018-11-17 18:12:23.124612: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0
+2018-11-17 18:12:28.650096: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-17 18:12:28.650169: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 
+2018-11-17 18:12:28.650200: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N 
+2018-11-17 18:12:28.650715: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 7139 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 with Max-Q Design, pci bus id: 0000:01:00.0, compute capability: 6.1)
+Using good policy maddpg and adv policy maddpg
