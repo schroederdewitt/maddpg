@@ -93,7 +93,7 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
 
 
 def train(arglist, logger):
-    with U.single_threaded_session():
+    with U.single_threaded_session(frac=0.2):
         # Create environment
         env = make_env(arglist.scenario, arglist, arglist.benchmark)
         # Create agent trainers
@@ -199,6 +199,8 @@ def train(arglist, logger):
 
             # saves final episode reward for plotting training curve later
             if len(episode_rewards) > arglist.num_episodes:
+                if not os.path.exists(arglist.plots_dir):
+                    os.makedirs(arglist.plots_dir)
                 rew_file_name = arglist.plots_dir + arglist.exp_name + '_rewards.pkl'
                 with open(rew_file_name, 'wb') as fp:
                     pickle.dump(final_ep_rewards, fp)
