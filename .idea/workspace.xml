@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="94c19c0a-15bf-48c4-959b-1db52e730a23" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/sacred/38951/cout.txt" beforeDir="false" afterPath="$PROJECT_DIR$/results/sacred/38951/cout.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/sacred/38951/run.json" beforeDir="false" afterPath="$PROJECT_DIR$/results/sacred/38951/run.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exp_scripts_alt/simple_spread/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/exp_scripts_alt/simple_spread/test.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -53,11 +53,29 @@
       <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/experiments/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="65">
-              <caret line="132" column="30" lean-forward="true" selection-start-line="132" selection-start-column="30" selection-end-line="132" selection-end-column="30" />
+            <state relative-caret-position="409">
+              <caret line="51" column="25" lean-forward="true" selection-start-line="51" selection-start-column="25" selection-end-line="51" selection-end-column="36" />
               <folding>
                 <element signature="e#0#65#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.sh" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/exp_scripts_alt/simple_spread/test.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="234">
+              <caret line="13" column="112" lean-forward="true" selection-start-line="13" selection-start-column="112" selection-end-line="13" selection-end-column="112" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="docker.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docker.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="19" column="37" lean-forward="true" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -71,11 +89,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="distributions.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="distributions.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/maddpg/common/distributions.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="281">
-              <caret line="204" column="45" selection-start-line="204" selection-start-column="45" selection-end-line="204" selection-end-column="45" />
+              <caret line="204" column="9" lean-forward="true" selection-start-line="204" selection-start-column="9" selection-end-line="204" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -106,8 +124,9 @@
         <option value="$PROJECT_DIR$/exp_scripts/simple_spread/test.sh" />
         <option value="$PROJECT_DIR$/exp_scripts/run.sh" />
         <option value="$PROJECT_DIR$/run.sh" />
-        <option value="$PROJECT_DIR$/experiments/train.py" />
         <option value="$PROJECT_DIR$/maddpg/common/tf_util.py" />
+        <option value="$PROJECT_DIR$/experiments/train.py" />
+        <option value="$PROJECT_DIR$/exp_scripts_alt/simple_spread/test.sh" />
       </list>
     </option>
   </component>
@@ -135,6 +154,17 @@
             <path>
               <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
               <item name="maddpg" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
+              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
+              <item name="exp_scripts_alt" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
+              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
+              <item name="exp_scripts_alt" type="462c0819:PsiDirectoryNode" />
+              <item name="simple_spread" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
@@ -266,12 +296,12 @@
       <window_info anchor="bottom" id="Version Control" order="11" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15771998" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15771998" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="4" />
       <window_info anchor="right" id="SciView" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.40347072" />
+      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.40347072" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -315,11 +345,6 @@
           <url>file://$PROJECT_DIR$/maddpg/trainer/maddpg.py</url>
           <line>45</line>
           <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/maddpg/common/distributions.py</url>
-          <line>204</line>
-          <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -450,20 +475,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/maddpg/common/distributions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="281">
+          <caret line="204" column="9" lean-forward="true" selection-start-line="204" selection-start-column="9" selection-end-line="204" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/experiments/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="65">
-          <caret line="132" column="30" lean-forward="true" selection-start-line="132" selection-start-column="30" selection-end-line="132" selection-end-column="30" />
+        <state relative-caret-position="409">
+          <caret line="51" column="25" lean-forward="true" selection-start-line="51" selection-start-column="25" selection-end-line="51" selection-end-column="36" />
           <folding>
             <element signature="e#0#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/maddpg/common/distributions.py">
+    <entry file="file://$PROJECT_DIR$/docker.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="204" column="45" selection-start-line="204" selection-start-column="45" selection-end-line="204" selection-end-column="45" />
+        <state relative-caret-position="180">
+          <caret line="19" column="37" lean-forward="true" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/simple_spread/test.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="13" column="112" lean-forward="true" selection-start-line="13" selection-start-column="112" selection-end-line="13" selection-end-column="112" />
         </state>
       </provider>
     </entry>
