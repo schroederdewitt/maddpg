@@ -1,0 +1,7 @@
+[INFO 22:51:34] pymarl Running command 'my_main'
+[INFO 22:51:34] pymarl Started run with ID "41935"
+[DEBUG 22:51:34] pymarl Starting Heartbeat
+[DEBUG 22:51:34] my_main Started
+2019-01-14 22:51:34.251673: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+Using good policy maddpg and adv policy maddpg
+Starting iterations...

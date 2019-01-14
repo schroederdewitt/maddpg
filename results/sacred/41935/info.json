@@ -1,0 +1,44 @@
+{
+  "episodes": [
+    1000
+  ],
+  "episodes_T": [
+    24975
+  ],
+  "mean_episode_reward": [
+    -669.0199899727511
+  ],
+  "mean_episode_reward_T": [
+    24975
+  ],
+  "return_mean": [
+    -669.0199899727511
+  ],
+  "return_mean_T": [
+    24975
+  ],
+  "return_mean_agent0": [
+    -223.0066633242504
+  ],
+  "return_mean_agent0_T": [
+    24975
+  ],
+  "return_mean_agent1": [
+    -223.0066633242504
+  ],
+  "return_mean_agent1_T": [
+    24975
+  ],
+  "return_mean_agent2": [
+    -223.0066633242504
+  ],
+  "return_mean_agent2_T": [
+    24975
+  ],
+  "time": [
+    519.407
+  ],
+  "time_T": [
+    24975
+  ]
+}

@@ -1,0 +1,21 @@
+[INFO 23:00:36] pymarl Running command 'my_main'
+[INFO 23:00:36] pymarl Started run with ID "41936"
+[DEBUG 23:00:36] pymarl Starting Heartbeat
+[DEBUG 23:00:36] my_main Started
+2019-01-14 23:00:36.781827: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+Using good policy maddpg and adv policy maddpg
+Starting iterations...
+steps: 24975, episodes: 1000, mean episode reward: -144.92267161994945, time: 36.58
+steps: 49975, episodes: 2000, mean episode reward: -151.4056825361345, time: 50.825
+steps: 74975, episodes: 3000, mean episode reward: -60.81137789571482, time: 52.862
+steps: 99975, episodes: 4000, mean episode reward: -51.502787867431174, time: 54.122
+steps: 124975, episodes: 5000, mean episode reward: -45.21129498537194, time: 52.718
+steps: 149975, episodes: 6000, mean episode reward: -45.06683325472058, time: 52.57
+steps: 174975, episodes: 7000, mean episode reward: -42.12171584272912, time: 53.099
+steps: 199975, episodes: 8000, mean episode reward: -44.56549312712751, time: 54.815
+steps: 224975, episodes: 9000, mean episode reward: -44.957391322177386, time: 53.888
+steps: 249975, episodes: 10000, mean episode reward: -44.7959742860588, time: 51.79
+steps: 274975, episodes: 11000, mean episode reward: -43.31794551034023, time: 51.095
+steps: 299975, episodes: 12000, mean episode reward: -45.74456417830322, time: 53.54
+steps: 324975, episodes: 13000, mean episode reward: -42.634421866639094, time: 52.046
+steps: 349975, episodes: 14000, mean episode reward: -43.581119706708314, time: 51.779

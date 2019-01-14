@@ -1,0 +1,18 @@
+pymarl_path: /home/cs/Documents/maddpg
+python_path: :/maddpg
+results_path: /home/cs/Documents/maddpg/results
+    name: MADDPG_ORIG_1__run__17_11_18-20_22_35__repeat1
+    gpu: 0
+    docker_hash: 7ryG
+    name: MADDPG_ORIG_1__run__17_11_18-20_22_35__repeat2
+    gpu: 0
+    docker_hash: 1Wer
+    name: MADDPG_ORIG_1__run__17_11_18-20_22_35__repeat3
+    gpu: 1
+    docker_hash: J2kf
+    name: MADDPG_ORIG_1__run__17_11_18-20_22_35__repeat4
+    gpu: 0
+    docker_hash: 3zIR
+    name: MADDPG_ORIG_1__run__17_11_18-20_22_35__repeat5
+    gpu: 1
+    docker_hash: HH2h
