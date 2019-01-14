@@ -34,7 +34,7 @@ RUN pip3 install sacred pymongo pyyaml
 RUN mkdir /install 
 WORKDIR /install
 #RUN git clone https://github.com/openai/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
-git clone https://github.com/schroeder-dewitt/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
+RUN git clone https://github.com/schroeder-dewitt/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
 
 EXPOSE 8888
 
