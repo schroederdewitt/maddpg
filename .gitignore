@@ -107,3 +107,4 @@ venv.bak/
 venv/maddpg/
 results/
 sacred/
+3rdparty/
