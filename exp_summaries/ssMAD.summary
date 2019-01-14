@@ -1,0 +1,33 @@
+pymarl_path: /home/chrder/projects/maddpg/
+python_path: :/maddpg
+results_path: /home/chrder/projects/maddpg//results
+    name: ssMAD__run__14_01_19-23_51_50__repeat1
+    gpu: 7
+    docker_hash: bpRu
+    name: ssMAD__run__14_01_19-23_51_50__repeat2
+    gpu: 7
+    docker_hash: a1YS
+    name: ssMAD__run__14_01_19-23_51_50__repeat3
+    gpu: 5
+    docker_hash: fAob
+    name: ssMAD__run__14_01_19-23_51_50__repeat4
+    gpu: 6
+    docker_hash: ziFY
+    name: ssMAD__run__14_01_19-23_51_50__repeat5
+    gpu: 7
+    docker_hash: MLIk
+    name: ssMAD__run__14_01_19-23_51_50__repeat6
+    gpu: 2
+    docker_hash: 8bNV
+    name: ssMAD__run__14_01_19-23_51_50__repeat7
+    gpu: 7
+    docker_hash: pUkq
+    name: ssMAD__run__14_01_19-23_51_50__repeat8
+    gpu: 4
+    docker_hash: hs7x
+    name: ssMAD__run__14_01_19-23_51_50__repeat9
+    gpu: 7
+    docker_hash: XnmV
+    name: ssMAD__run__14_01_19-23_51_50__repeat10
+    gpu: 4
+    docker_hash: ja4R
