@@ -1,1 +1,1 @@
-docker build -t maddpg .
+docker build -t maddpg -f Dockerfile-cpu .
