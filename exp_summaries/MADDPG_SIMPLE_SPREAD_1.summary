@@ -1,0 +1,24 @@
+pymarl_path: /home/chrder/projects/maddpg
+python_path: :/maddpg
+results_path: /home/chrder/projects/maddpg/results
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat1
+    gpu: 2
+    docker_hash: cAed
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat2
+    gpu: 3
+    docker_hash: tOh8
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat3
+    gpu: 3
+    docker_hash: tKZd
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat4
+    gpu: 7
+    docker_hash: pnYd
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat5
+    gpu: 5
+    docker_hash: vYO8
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat6
+    gpu: 1
+    docker_hash: oBsg
+    name: MADDPG_SIMPLE_SPREAD_1__run__18_11_18-23_34_37__repeat7
+    gpu: 3
+    docker_hash: U3w1

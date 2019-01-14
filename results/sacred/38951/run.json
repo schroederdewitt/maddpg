@@ -21,7 +21,7 @@
       ]
     ]
   },
-  "heartbeat": "2018-11-17T20:20:02.086330",
+  "heartbeat": "2018-11-17T20:21:16.921765",
   "host": {
     "ENV": {},
     "cpu": "Intel(R) Core(TM) i7-7820HK CPU @ 2.90GHz",
@@ -72,5 +72,6 @@
   "resources": [],
   "result": null,
   "start_time": "2018-11-17T20:19:42.042065",
-  "status": "RUNNING"
+  "status": "INTERRUPTED",
+  "stop_time": "2018-11-17T20:21:16.930930"
 }

@@ -106,3 +106,4 @@ venv.bak/
 
 venv/maddpg/
 results/
+sacred/

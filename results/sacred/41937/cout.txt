@@ -18,3 +18,4 @@ steps: 249975, episodes: 10000, mean episode reward: -42.499707387683564, time: 
 steps: 274975, episodes: 11000, mean episode reward: -42.00462215829274, time: 57.201
 steps: 299975, episodes: 12000, mean episode reward: -42.04516575318176, time: 56.442
 steps: 324975, episodes: 13000, mean episode reward: -41.73268713200341, time: 56.425
+steps: 349975, episodes: 14000, mean episode reward: -41.23692163467444, time: 54.695

@@ -15,3 +15,4 @@ totalMemory: 7.92GiB freeMemory: 7.22GiB
 2018-11-17 20:19:42.383244: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 6962 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 with Max-Q Design, pci bus id: 0000:01:00.0, compute capability: 6.1)
 Using good policy maddpg and adv policy maddpg
 Starting iterations...
+steps: 24975, episodes: 1000, mean episode reward: -684.2168024709995, time: 82.454
