@@ -11,6 +11,6 @@ else
    reps=$3
 fi 
 
-cmd_line=" --scenario simple_spread --num-episodes 120000  --save-dir /maddpg/results"
+cmd_line=" --scenario simple_world_comm --num-episodes 120000 --save-dir /maddpg/results"
 
 ${MADDPG_PATH}/exp_scripts_alt/run.sh "${target}" "${cmd_line}" "${tag}" "${reps}"

@@ -21,7 +21,14 @@
       ]
     ]
   },
-  "heartbeat": "2019-01-14T23:14:34.475293",
+  "fail_trace": [
+    "Traceback (most recent call last):\n",
+    "  File \"/home/cs/Documents/venvs/pymarl-cqmix/lib/python3.6/site-packages/sacred/config/captured_function.py\", line 46, in captured_function\n    result = wrapped(*args, **kwargs)\n",
+    "  File \"/home/cs/Documents/maddpg/experiments/train.py\", line 276, in my_main\n    train(arglist, logger)\n",
+    "  File \"/home/cs/Documents/maddpg/experiments/train.py\", line 207, in train\n    with open(rew_file_name, 'wb') as fp:\n",
+    "FileNotFoundError: [Errno 2] No such file or directory: './learning_curves/sslMAD_rewards.pkl'\n"
+  ],
+  "heartbeat": "2019-01-14T23:53:34.059709",
   "host": {
     "ENV": {},
     "cpu": "Intel(R) Core(TM) i7-5930K CPU @ 3.50GHz",
@@ -77,5 +84,6 @@
   "resources": [],
   "result": null,
   "start_time": "2019-01-14T23:00:36.737209",
-  "status": "RUNNING"
+  "status": "FAILED",
+  "stop_time": "2019-01-14T23:53:34.517828"
 }
