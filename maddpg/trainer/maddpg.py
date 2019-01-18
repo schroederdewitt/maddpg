@@ -29,6 +29,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
+        act_test_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
 
         # set up placeholders
         obs_ph_n = make_obs_ph_n
@@ -41,8 +42,11 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
 
         # wrap parameters in distribution
         act_pd = act_pdtype_n[p_index].pdfromflat(p)
+        act_test_pd = act_test_pdtype_n[p_index].pdfromflat(p)
 
         act_sample = act_pd.sample()
+        act_test_sample = act_test_pd.sample()
+
         p_reg = tf.reduce_mean(tf.square(act_pd.flatparam()))
 
         act_input_n = act_ph_n + []
@@ -60,6 +64,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         # Create callable functions
         train = U.function(inputs=obs_ph_n + act_ph_n, outputs=loss, updates=[optimize_expr])
         act = U.function(inputs=[obs_ph_n[p_index]], outputs=act_sample)
+        act_test = U.function(inputs=[obs_ph_n[p_index]], outputs=act_test_sample)
         p_values = U.function([obs_ph_n[p_index]], p)
 
         # target network
@@ -70,7 +75,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         target_act_sample = act_pdtype_n[p_index].pdfromflat(target_p).sample()
         target_act = U.function(inputs=[obs_ph_n[p_index]], outputs=target_act_sample)
 
-        return act, train, update_target_p, {'p_values': p_values, 'target_act': target_act}
+        return act, act_test, train, update_target_p, {'p_values': p_values, 'target_act': target_act}
 
 def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, scope="trainer", reuse=None, num_units=64):
     with tf.variable_scope(scope, reuse=reuse):
@@ -131,7 +136,7 @@ class MADDPGAgentTrainer(AgentTrainer):
             local_q_func=local_q_func,
             num_units=args.num_units
         )
-        self.act, self.p_train, self.p_update, self.p_debug = p_train(
+        self.act, self.act_test, self.p_train, self.p_update, self.p_debug = p_train(
             scope=self.name,
             make_obs_ph_n=obs_ph_n,
             act_space_n=act_space_n,
@@ -150,6 +155,9 @@ class MADDPGAgentTrainer(AgentTrainer):
 
     def action(self, obs):
         return self.act(obs[None])[0]
+
+    def action_test(self, obs):
+        return self.act_test(obs[None])[0]
 
     def experience(self, obs, act, rew, new_obs, done, terminal):
         # Store transition in the replay buffer.

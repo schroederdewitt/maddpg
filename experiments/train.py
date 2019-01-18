@@ -30,6 +30,8 @@ def parse_args():
     parser.add_argument("--scenario", type=str, default="simple", help="name of the scenario script")
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
+    parser.add_argument("--test-rate", type=int, default=1000, help="test rate") # change to 25000
+    parser.add_argument("--n-tests", type=int, default=10, help="n tests per test")
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
@@ -163,6 +165,37 @@ def train(arglist, logger):
                         pickle.dump(agent_info[:-1], fp)
                     break
                 continue
+
+            # generate test trajectories
+            if terminal and (train_step % arglist.test_rate == 0):
+                episode_rewards_test = []
+                agent_rewards_test = [[] for _ in trainers]
+                for _ in range(arglist.n_tests):
+                    episode_rewards_test.append(0)
+                    for i, agent in enumerate(trainers):
+                        agent_rewards_test[i].append(0)
+                    episode_test_step = 0
+                    while True:
+                        action_n = [agent.action_test(obs) for agent, obs in zip(trainers,obs_n)]
+                        # environment step
+                        new_obs_n, rew_n, done_n, info_n = env.step(action_n)
+                        episode_test_step += 1
+                        done = all(done_n)
+                        terminal = (episode_step >= arglist.max_episode_len)
+                        for i, rew in enumerate(rew_n):
+                            episode_rewards_test[-1] += rew
+                            agent_rewards_test[i][-1] += rew
+                        if done or terminal:
+                            obs_n = env.reset()
+                            break
+                # save them to sacred
+                final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
+
+                prefix = "test"
+                logger.log_stat(prefix + "_return_mean", np.mean(episode_rewards_test), train_step)
+                for _i, rew in enumerate(agent_rewards_test):
+                    final_ep_ag_rewards.append(np.mean(rew))
+                    logger.log_stat(prefix + "_return_mean_agent{}".format(_i), np.mean(rew), train_step)
 
             # for displaying learned policies
             if arglist.display:

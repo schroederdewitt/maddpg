@@ -28,8 +28,8 @@ class PdType(object):
     """
     def pdclass(self):
         raise NotImplementedError
-    def pdfromflat(self, flat):
-        return self.pdclass()(flat)
+    def pdfromflat(self, flat, test=False):
+        return self.pdclass()(flat, test=test)
     def param_shape(self):
         raise NotImplementedError
     def sample_shape(self):
@@ -146,8 +146,9 @@ class BernoulliPdType(PdType):
 #         return U.argmax(self.logits - tf.log(-tf.log(u)), axis=1)
 
 class CategoricalPd(Pd):
-    def __init__(self, logits):
+    def __init__(self, logits, test=False):
         self.logits = logits
+        self.test = test
     def flatparam(self):
         return self.logits
     def mode(self):
@@ -171,14 +172,18 @@ class CategoricalPd(Pd):
         return U.sum(p0 * (tf.log(z0) - a0), axis=1)
     def sample(self):
         u = tf.random_uniform(tf.shape(self.logits))
-        return U.argmax(self.logits - tf.log(-tf.log(u)), axis=1)
+        if not self.test:
+            return U.argmax(self.logits - tf.log(-tf.log(u)), axis=1)
+        else:
+            return U.argmax(self.logits, axis=1)
     @classmethod
     def fromflat(cls, flat):
         return cls(flat)
 
 class SoftCategoricalPd(Pd):
-    def __init__(self, logits):
+    def __init__(self, logits, test=False):
         self.logits = logits
+        self.test = test
     def flatparam(self):
         return self.logits
     def mode(self):
@@ -202,16 +207,19 @@ class SoftCategoricalPd(Pd):
         return U.sum(p0 * (tf.log(z0) - a0), axis=1)
     def sample(self):
         u = tf.random_uniform(tf.shape(self.logits))
-        return U.softmax(self.logits - tf.log(-tf.log(u)), axis=-1)  
+        if not self.test:
+            return U.softmax(self.logits - tf.log(-tf.log(u)), axis=-1)
+        else:
+            return U.softmax(self.logits, axis=-1)
     @classmethod
     def fromflat(cls, flat):
         return cls(flat)        
 
 class MultiCategoricalPd(Pd):
-    def __init__(self, low, high, flat):
+    def __init__(self, low, high, flat, test):
         self.flat = flat
         self.low = tf.constant(low, dtype=tf.int32)
-        self.categoricals = list(map(CategoricalPd, tf.split(flat, high - low + 1, axis=len(flat.get_shape()) - 1)))
+        self.categoricals = list(map(CategoricalPd, tf.split(flat, high - low + 1, axis=len(flat.get_shape()) - 1), test))
     def flatparam(self):
         return self.flat
     def mode(self):
@@ -231,10 +239,10 @@ class MultiCategoricalPd(Pd):
         return cls(flat)
 
 class SoftMultiCategoricalPd(Pd):  # doesn't work yet
-    def __init__(self, low, high, flat):
+    def __init__(self, low, high, flat, test):
         self.flat = flat
         self.low = tf.constant(low, dtype=tf.float32)
-        self.categoricals = list(map(SoftCategoricalPd, tf.split(flat, high - low + 1, axis=len(flat.get_shape()) - 1)))
+        self.categoricals = list(map(SoftCategoricalPd, tf.split(flat, high - low + 1, axis=len(flat.get_shape()) - 1), test))
     def flatparam(self):
         return self.flat
     def mode(self):
@@ -260,12 +268,13 @@ class SoftMultiCategoricalPd(Pd):  # doesn't work yet
         return cls(flat)
 
 class DiagGaussianPd(Pd):
-    def __init__(self, flat):
+    def __init__(self, flat, test):
         self.flat = flat
         mean, logstd = tf.split(axis=1, num_or_size_splits=2, value=flat)
         self.mean = mean
         self.logstd = logstd
         self.std = tf.exp(logstd)
+        self.test = test
     def flatparam(self):
         return self.flat        
     def mode(self):
@@ -280,15 +289,19 @@ class DiagGaussianPd(Pd):
     def entropy(self):
         return U.sum(self.logstd + .5 * np.log(2.0 * np.pi * np.e), 1)
     def sample(self):
-        return self.mean + self.std * tf.random_normal(tf.shape(self.mean))
+        if not self.test:
+            return self.mean + self.std * tf.random_normal(tf.shape(self.mean))
+        else:
+            return self.mean
     @classmethod
     def fromflat(cls, flat):
         return cls(flat)
 
 class BernoulliPd(Pd):
-    def __init__(self, logits):
+    def __init__(self, logits, test):
         self.logits = logits
         self.ps = tf.sigmoid(logits)
+        self.test = test
     def flatparam(self):
         return self.logits
     def mode(self):
@@ -302,7 +315,10 @@ class BernoulliPd(Pd):
     def sample(self):
         p = tf.sigmoid(self.logits)
         u = tf.random_uniform(tf.shape(p))
-        return tf.to_float(math_ops.less(u, p))
+        if not self.test:
+            return tf.to_float(math_ops.less(u, p))
+        else:
+            return tf.to_float(p)
     @classmethod
     def fromflat(cls, flat):
         return cls(flat)
