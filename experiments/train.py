@@ -181,7 +181,7 @@ def train(arglist, logger):
                         new_obs_n, rew_n, done_n, info_n = env.step(action_n)
                         episode_test_step += 1
                         done = all(done_n)
-                        terminal = (episode_step >= arglist.max_episode_len)
+                        terminal = (episode_test_step >= arglist.max_episode_len)
                         for i, rew in enumerate(rew_n):
                             episode_rewards_test[-1] += rew
                             agent_rewards_test[i][-1] += rew
