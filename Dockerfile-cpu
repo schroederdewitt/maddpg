@@ -28,8 +28,11 @@ RUN pip3 install --upgrade tensorflow
 RUN pip3 install sacred pymongo pyyaml
 RUN mkdir /install 
 WORKDIR /install
-#RUN git clone https://github.com/openai/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
+# RUN git clone https://github.com/openai/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
+RUN echo "UPDATE2"
 RUN git clone https://github.com/schroeder-dewitt/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
+
+RUN pip3 install gym==0.10.8
 
 EXPOSE 8888
 
