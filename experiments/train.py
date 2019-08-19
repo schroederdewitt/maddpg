@@ -35,6 +35,8 @@ def parse_args():
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
+    parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
+    parser.add_argument("--agent-obsk", type=int, default=-1, help="agent configuration for mujoco multi")
     # Core training parameters
     parser.add_argument("--lr", type=float, default=1e-2, help="learning rate for Adam optimizer")
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
@@ -72,7 +74,7 @@ def make_env(scenario_name, arglist, benchmark=False):
     if scenario_name in ["half_cheetah_multi"]:
         if scenario_name == "half_cheetah_multi":
             from multiagent.envs import MultiAgentHalfCheetah
-            env = MultiAgentHalfCheetah()
+            env = MultiAgentHalfCheetah(arglist)
     else:
         # load scenario from script
         scenario = scenarios.load(scenario_name + ".py").Scenario()
@@ -83,12 +85,15 @@ def make_env(scenario_name, arglist, benchmark=False):
             env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
         else:
             env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+
+    print("ENV TOTAL ACTION SPACE: {}", env.action_space)
     return env
 
 def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     trainers = []
     model = mlp_model
     trainer = MADDPGAgentTrainer
+    print("HALLULAH", env.action_space)
     for i in range(num_adversaries):
         trainers.append(trainer(
             "agent_%d" % i, model, obs_shape_n, env.action_space, i, arglist,
@@ -142,6 +147,12 @@ def train(arglist, logger):
             terminal = (episode_step >= arglist.max_episode_len)
             # collect experience
             for i, agent in enumerate(trainers):
+            #     print("index i", i)
+            #     print("obs_n", obs_n)
+            #     print("action_n", action_n)
+            #     print("rew_n", rew_n)
+            #     print("new_obs_n", new_obs_n)
+            #     print("done_n", done_n)
                 agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal)
             obs_n = new_obs_n
 

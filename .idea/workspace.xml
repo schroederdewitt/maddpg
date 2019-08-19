@@ -5,6 +5,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile-cpu" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile-cpu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maddpg/trainer/maddpg.py" beforeDir="false" afterPath="$PROJECT_DIR$/maddpg/trainer/maddpg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run-cpu.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run-cpu.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,11 +28,32 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/experiments/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="68" column="44" lean-forward="true" selection-start-line="68" selection-start-column="44" selection-end-line="68" selection-end-column="44" />
+            <state relative-caret-position="205">
+              <caret line="148" column="36" selection-start-line="148" selection-start-column="36" selection-end-line="148" selection-end-column="36" />
               <folding>
                 <element signature="e#0#65#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/train.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="189">
+              <caret line="186" column="133" selection-start-line="186" selection-start-column="133" selection-end-line="186" selection-end-column="133" />
+              <folding>
+                <element signature="e#0#65#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/setup.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="195">
+              <caret line="13" selection-start-line="13" selection-end-line="13" />
             </state>
           </provider>
         </entry>
@@ -49,8 +73,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/maddpg/trainer/maddpg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="107" column="24" lean-forward="true" selection-start-line="107" selection-start-column="24" selection-end-line="107" selection-end-column="24" />
+            <state relative-caret-position="180">
+              <caret line="61" column="37" selection-start-line="61" selection-start-column="37" selection-end-line="61" selection-end-column="37" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -64,7 +88,6 @@
     <findStrings>
       <find>action(</find>
       <find>action</find>
-      <find>p_train</find>
       <find>_get_config</find>
       <find>logger</find>
       <find>enumerate</find>
@@ -82,7 +105,14 @@
       <find>self.act</find>
       <find>pdf</find>
       <find>make_env</find>
+      <find>p_train</find>
+      <find>MADDPGAgentTrainer</find>
+      <find>env.</find>
+      <find>3x3</find>
     </findStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$</dir>
+    </dirStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -102,8 +132,9 @@
         <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_speaker_listener.sh" />
         <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_reference.sh" />
         <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_adversary.sh" />
-        <option value="$PROJECT_DIR$/maddpg/trainer/maddpg.py" />
         <option value="$PROJECT_DIR$/maddpg/common/distributions.py" />
+        <option value="$PROJECT_DIR$/maddpg/trainer/maddpg.py" />
+        <option value="$PROJECT_DIR$/train.py" />
         <option value="$PROJECT_DIR$/experiments/train.py" />
       </list>
     </option>
@@ -135,6 +166,12 @@
               <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
               <item name="maddpg" type="462c0819:PsiDirectoryNode" />
               <item name="maddpg" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
+              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
+              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
+              <item name="trainer" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
@@ -293,12 +330,12 @@
       <workItem from="1547947707720" duration="958000" />
       <workItem from="1548013649893" duration="599000" />
       <workItem from="1548014279854" duration="2595000" />
-      <workItem from="1566124386591" duration="425000" />
+      <workItem from="1566124386591" duration="6052000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20798000" />
+    <option name="totallyTimeSpent" value="26425000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="735" extended-state="6" />
@@ -345,17 +382,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/maddpg/trainer/maddpg.py</url>
-          <line>180</line>
+          <line>182</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/experiments/train.py</url>
-          <line>213</line>
+          <line>224</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/maddpg/trainer/maddpg.py</url>
-          <line>92</line>
+          <line>94</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -493,18 +530,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/maddpg/trainer/maddpg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="107" column="24" lean-forward="true" selection-start-line="107" selection-start-column="24" selection-end-line="107" selection-end-column="24" />
+        <state relative-caret-position="180">
+          <caret line="61" column="37" selection-start-line="61" selection-start-column="37" selection-end-line="61" selection-end-column="37" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="186" column="133" selection-start-line="186" selection-start-column="133" selection-end-line="186" selection-end-column="133" />
+          <folding>
+            <element signature="e#0#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/experiments/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="68" column="44" lean-forward="true" selection-start-line="68" selection-start-column="44" selection-end-line="68" selection-end-column="44" />
+        <state relative-caret-position="205">
+          <caret line="148" column="36" selection-start-line="148" selection-start-column="36" selection-end-line="148" selection-end-column="36" />
           <folding>
             <element signature="e#0#65#0" expanded="true" />
           </folding>
