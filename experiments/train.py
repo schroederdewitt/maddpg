@@ -157,8 +157,10 @@ def train(arglist, logger):
             obs_n = new_obs_n
 
             for i, rew in enumerate(rew_n):
-                episode_rewards[-1] += rew
+                # NOTE: We do not sum over all agents' individual rewards again for cooperative env.
+                # episode_rewards[-1] += rew
                 agent_rewards[i][-1] += rew
+            episode_rewards[-1] += rew_n[0]
 
             if done or terminal:
                 obs_n = env.reset()
@@ -199,9 +201,13 @@ def train(arglist, logger):
                         episode_test_step += 1
                         done = all(done_n)
                         terminal = (episode_test_step >= arglist.max_episode_len)
+                        obs_n = new_obs_n
+
                         for i, rew in enumerate(rew_n):
-                            episode_rewards_test[-1] += rew
+                            # NOTE: we do not sum over all agents' individual rewards again for cooperative env.
+                            # episode_rewards_test[-1] += rew
                             agent_rewards_test[i][-1] += rew
+                        episode_rewards_test[-1] += rew_n[0]
                         if done or terminal:
                             obs_n = env.reset()
                             break
@@ -384,7 +390,7 @@ if __name__ == '__main__':
     ex.add_config({"name":arglist.exp_name})
 
     # Check if we don't want to save to sacred mongodb
-    no_mongodb = False
+    no_mongodb = True
 
     # for _i, _v in enumerate(params):
     #     if "no-mongo" in _v:
