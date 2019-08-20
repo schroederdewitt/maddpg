@@ -42,6 +42,7 @@ def parse_args():
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
+    parser.add_argument("--discrete-action", action="store_true", default=False, help="use continuous action space by default")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
@@ -57,13 +58,19 @@ def parse_args():
 
     return parser.parse_args()
 
-def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, rnn_cell=None):
+def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_out=False, discrete_action=False, rnn_cell=None):
     # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
         out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
         out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
-        out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
+        # out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
+
+        # NOTE: use this for continuous action space
+        if constrain_out and not discrete_action:
+            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=tf.nn.tanh)
+        else:
+            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
         return out
 
 def make_env(scenario_name, arglist, benchmark=False):

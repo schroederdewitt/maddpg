@@ -25,7 +25,7 @@ def make_update_exp(vals, target_vals):
     expression = tf.group(*expression)
     return U.function([], [], updates=[expression])
 
-def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, num_units=64, scope="trainer", reuse=None):
+def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, num_units=64, scope="trainer", reuse=None, discrete_action=True):
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
@@ -39,7 +39,8 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
 
         print("ACTPDTYPE: {}".format(act_space_n))
         print("PINDEX: {}".format(p_index))
-        p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="p_func", num_units=num_units)
+        p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="p_func", num_units=num_units,
+                   constrain_out=True, discrete_action=discrete_action)
         p_func_vars = U.scope_vars(U.absolute_scope_name("p_func"))
 
         # wrap parameters in distribution
@@ -56,7 +57,8 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         q_input = tf.concat(obs_ph_n + act_input_n, 1)
         if local_q_func:
             q_input = tf.concat([obs_ph_n[p_index], act_input_n[p_index]], 1)
-        q = q_func(q_input, 1, scope="q_func", reuse=True, num_units=num_units)[:,0]
+        q = q_func(q_input, 1, scope="q_func", reuse=True, num_units=num_units,
+                   constrain_out=False, discrete_action=discrete_action)[:, 0]
         pg_loss = -tf.reduce_mean(q)
 
         loss = pg_loss + p_reg * 1e-3
@@ -70,7 +72,9 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         p_values = U.function([obs_ph_n[p_index]], p)
 
         # target network
-        target_p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="target_p_func", num_units=num_units)
+        target_p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="target_p_func",
+                          num_units=num_units,
+                          constrain_out=True, discrete_action=discrete_action)
         target_p_func_vars = U.scope_vars(U.absolute_scope_name("target_p_func"))
         update_target_p = make_update_exp(p_func_vars, target_p_func_vars)
 
@@ -79,7 +83,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
 
         return act, act_test, train, update_target_p, {'p_values': p_values, 'target_act': target_act}
 
-def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, scope="trainer", reuse=None, num_units=64):
+def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, scope="trainer", reuse=None, num_units=64, discrete_action=True):
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
@@ -92,7 +96,8 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
         q_input = tf.concat(obs_ph_n + act_ph_n, 1)
         if local_q_func:
             q_input = tf.concat([obs_ph_n[q_index], act_ph_n[q_index]], 1)
-        q = q_func(q_input, 1, scope="q_func", num_units=num_units)[:,0]
+        q = q_func(q_input, 1, scope="q_func", num_units=num_units,
+                   constrain_out=False, discrete_action=discrete_action)[:, 0]
         q_func_vars = U.scope_vars(U.absolute_scope_name("q_func"))
 
         q_loss = tf.reduce_mean(tf.square(q - target_ph))
@@ -108,7 +113,8 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
         q_values = U.function(obs_ph_n + act_ph_n, q)
 
         # target network
-        target_q = q_func(q_input, 1, scope="target_q_func", num_units=num_units)[:,0]
+        target_q = q_func(q_input, 1, scope="target_q_func", num_units=num_units,
+                          constrain_out=False, discrete_action=discrete_action)[:, 0]
         target_q_func_vars = U.scope_vars(U.absolute_scope_name("target_q_func"))
         update_target_q = make_update_exp(q_func_vars, target_q_func_vars)
 
@@ -136,7 +142,8 @@ class MADDPGAgentTrainer(AgentTrainer):
             optimizer=tf.train.AdamOptimizer(learning_rate=args.lr),
             grad_norm_clipping=0.5,
             local_q_func=local_q_func,
-            num_units=args.num_units
+            num_units=args.num_units,
+            discrete_action=args.discrete_action
         )
         self.act, self.act_test, self.p_train, self.p_update, self.p_debug = p_train(
             scope=self.name,
@@ -148,7 +155,8 @@ class MADDPGAgentTrainer(AgentTrainer):
             optimizer=tf.train.AdamOptimizer(learning_rate=args.lr),
             grad_norm_clipping=0.5,
             local_q_func=local_q_func,
-            num_units=args.num_units
+            num_units=args.num_units,
+            discrete_action=args.discrete_action
         )
         # Create experience buffer
         self.replay_buffer = ReplayBuffer(1e6)
