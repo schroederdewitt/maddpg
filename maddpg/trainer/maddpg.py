@@ -17,15 +17,16 @@ def discount_with_dones(rewards, dones, gamma):
         discounted.append(r)
     return discounted[::-1]
 
-def make_update_exp(vals, target_vals):
-    polyak = 1.0 - 1e-2
+def make_update_exp(vals, target_vals, target_update_tau=0.001):
+    polyak = 1.0 - target_update_tau
     expression = []
     for var, var_target in zip(sorted(vals, key=lambda v: v.name), sorted(target_vals, key=lambda v: v.name)):
         expression.append(var_target.assign(polyak * var_target + (1.0-polyak) * var))
     expression = tf.group(*expression)
     return U.function([], [], updates=[expression])
 
-def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, num_units=64, scope="trainer", reuse=None, discrete_action=True):
+def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False,
+            num_units=64, scope="trainer", reuse=None, discrete_action=False, target_update_tau=0.001):
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
@@ -45,7 +46,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
 
         # wrap parameters in distribution
         act_pd = act_pdtype_n[p_index].pdfromflat(p)
-        act_test_pd = act_test_pdtype_n[p_index].pdfromflat(p)
+        act_test_pd = act_test_pdtype_n[p_index].pdfromflat(p, test=True)   # NOTE: test=True during testing time
 
         act_sample = act_pd.sample()
         act_test_sample = act_test_pd.sample()
@@ -76,14 +77,15 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
                           num_units=num_units,
                           constrain_out=True, discrete_action=discrete_action)
         target_p_func_vars = U.scope_vars(U.absolute_scope_name("target_p_func"))
-        update_target_p = make_update_exp(p_func_vars, target_p_func_vars)
+        update_target_p = make_update_exp(p_func_vars, target_p_func_vars, target_update_tau)
 
         target_act_sample = act_pdtype_n[p_index].pdfromflat(target_p).sample()
         target_act = U.function(inputs=[obs_ph_n[p_index]], outputs=target_act_sample)
 
         return act, act_test, train, update_target_p, {'p_values': p_values, 'target_act': target_act}
 
-def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, scope="trainer", reuse=None, num_units=64, discrete_action=True):
+def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False,
+            scope="trainer", reuse=None, num_units=64, discrete_action=False, target_update_tau=0.001):
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
@@ -116,7 +118,7 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
         target_q = q_func(q_input, 1, scope="target_q_func", num_units=num_units,
                           constrain_out=False, discrete_action=discrete_action)[:, 0]
         target_q_func_vars = U.scope_vars(U.absolute_scope_name("target_q_func"))
-        update_target_q = make_update_exp(q_func_vars, target_q_func_vars)
+        update_target_q = make_update_exp(q_func_vars, target_q_func_vars, target_update_tau)
 
         target_q_values = U.function(obs_ph_n + act_ph_n, target_q)
 
@@ -139,11 +141,12 @@ class MADDPGAgentTrainer(AgentTrainer):
             act_space_n=act_space_n,
             q_index=agent_index,
             q_func=model,
-            optimizer=tf.train.AdamOptimizer(learning_rate=args.lr),
+            optimizer=tf.train.AdamOptimizer(learning_rate=args.lr, epsilon=args.optimizer_epsilon),
             grad_norm_clipping=0.5,
             local_q_func=local_q_func,
             num_units=args.num_units,
-            discrete_action=args.discrete_action
+            discrete_action=args.discrete_action,
+            target_update_tau=args.target_update_tau
         )
         self.act, self.act_test, self.p_train, self.p_update, self.p_debug = p_train(
             scope=self.name,
@@ -152,12 +155,14 @@ class MADDPGAgentTrainer(AgentTrainer):
             p_index=agent_index,
             p_func=model,
             q_func=model,
-            optimizer=tf.train.AdamOptimizer(learning_rate=args.lr),
+            optimizer=tf.train.AdamOptimizer(learning_rate=args.lr, epsilon=args.optimizer_epsilon),
             grad_norm_clipping=0.5,
             local_q_func=local_q_func,
             num_units=args.num_units,
-            discrete_action=args.discrete_action
+            discrete_action=args.discrete_action,
+            target_update_tau=args.target_update_tau
         )
+
         # Create experience buffer
         self.replay_buffer = ReplayBuffer(1e6)
         self.max_replay_buffer_len = args.batch_size * args.max_episode_len
@@ -177,10 +182,10 @@ class MADDPGAgentTrainer(AgentTrainer):
         self.replay_sample_index = None
 
     def update(self, agents, t):
-        if len(self.replay_buffer) < self.max_replay_buffer_len: # replay buffer is not large enough
-            return
-        if not t % 100 == 0:  # only update every 100 steps
-            return
+        # if len(self.replay_buffer) < self.max_replay_buffer_len: # replay buffer is not large enough
+        #     return
+        # if not t % 100 == 0:  # only update every 100 steps
+        #     return
 
         self.replay_sample_index = self.replay_buffer.make_index(self.args.batch_size)
         # collect replay sample from all agents

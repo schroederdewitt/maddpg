@@ -21,8 +21,10 @@ import time
 import pickle
 
 import maddpg.common.tf_util as U
+from maddpg.common.noise import OUNoise
 from maddpg.trainer.maddpg import MADDPGAgentTrainer
 import tensorflow.contrib.layers as layers
+
 
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
@@ -37,12 +39,18 @@ def parse_args():
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
     parser.add_argument("--agent-obsk", type=int, default=-1, help="agent configuration for mujoco multi")
+    parser.add_argument("--obs-add-global-pos", action="store_true", help="agent configuration for mujoco multi")
     # Core training parameters
     parser.add_argument("--lr", type=float, default=1e-2, help="learning rate for Adam optimizer")
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
     parser.add_argument("--discrete-action", action="store_true", default=False, help="use continuous action space by default")
+    parser.add_argument("--buffer-warmup", type=int, default=1000, help="number of transitions the replay buffer should at least have")
+    parser.add_argument("--learn-interval", type=int, default=1, help="train the network after every fixed number of time steps")
+    parser.add_argument("--target-update-tau", type=float, default=0.001, help="soft update param")
+    parser.add_argument("--optimizer-epsilon", type=float, default=0.01, help="epsilon value for the optimizer")
+    parser.add_argument("--ou-stop-episode", type=int, default=100, help="number of episodes to do exploration")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
@@ -68,7 +76,7 @@ def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_ou
 
         # NOTE: use this for continuous action space
         if constrain_out and not discrete_action:
-            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=tf.nn.tanh)
+            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=tf.tanh)
         else:
             out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
         return out
@@ -96,6 +104,7 @@ def make_env(scenario_name, arglist, benchmark=False):
     print("ENV TOTAL ACTION SPACE: {}", env.action_space)
     return env
 
+
 def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     trainers = []
     model = mlp_model
@@ -112,10 +121,17 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     return trainers
 
 
-def train(arglist, logger):
+def train(arglist, logger, _config):
     with U.single_threaded_session(frac=0.2):
         # Create environment
         env = make_env(arglist.scenario, arglist, arglist.benchmark)
+
+        # Setting the random seed throughout the modules
+        np.random.seed(_config["seed"])
+        tf.set_random_seed(_config["seed"])
+        env.seed(_config["seed"])
+        print("seed: ", _config["seed"])
+
         # Create agent trainers
         obs_shape_n = [env.observation_space[i].shape for i in range(env.n)]
         num_adversaries = min(env.n, arglist.num_adversaries)
@@ -143,15 +159,38 @@ def train(arglist, logger):
         train_step = 0
         t_start = time.time()
 
+        # add OUNoise objects for each agent
+        exploration_noise = [OUNoise(env.action_space[i].shape[0]) for i in range(env.n)]
+
         print('Starting iterations...')
         while True:
             # get action
-            action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)]
+            action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+
+            # add OUNoise to explore
+            if train_step < arglist.max_episode_len * arglist.ou_stop_episode:
+                for _aid in range(env.n):
+                    exploration_noise[_aid].reset()
+                    ou_noise = exploration_noise[_aid].noise()
+                    action_n[_aid] += ou_noise
+
+            # now clamp actions to permissible action range (necessary after exploration)
+            act_limit = env.action_space[0].high[0]   # assuming all dimensions share the same bound
+            for _aid in range(env.n):
+                np.clip(action_n[_aid], -act_limit, act_limit, out=action_n[_aid])
+
             # environment step
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
             episode_step += 1
             done = all(done_n)
             terminal = (episode_step >= arglist.max_episode_len)
+
+            if done and not terminal:
+                done_n = [True for _ in range(len(done_n))]
+                print("True terminated!")
+            else:
+                done_n = [False for _ in range(len(done_n))]
+
             # collect experience
             for i, agent in enumerate(trainers):
             #     print("index i", i)
@@ -203,6 +242,12 @@ def train(arglist, logger):
                     episode_test_step = 0
                     while True:
                         action_n = [agent.action_test(obs) for agent, obs in zip(trainers,obs_n)]
+
+                        # now clamp actions to permissible action range (necessary after exploration)
+                        act_limit = env.action_space[0].high[0]  # assuming all dimensions share the same bound
+                        for _aid in range(env.n):
+                            np.clip(action_n[_aid], -act_limit, act_limit, out=action_n[_aid])
+
                         # environment step
                         new_obs_n, rew_n, done_n, info_n = env.step(action_n)
                         episode_test_step += 1
@@ -238,7 +283,10 @@ def train(arglist, logger):
             for agent in trainers:
                 agent.preupdate()
             for agent in trainers:
-                loss = agent.update(trainers, train_step)
+                # NOTE: Make sure we use the same values for these parameters as used in pymarl.
+                if len(agent.replay_buffer) > arglist.buffer_warmup and len(agent.replay_buffer) >= arglist.batch_size:
+                    if train_step % arglist.learn_interval == 0:
+                        loss = agent.update(trainers, train_step)
 
             # save model, display training output
             prefix = ""  # not sure if test or train wtf
@@ -336,7 +384,8 @@ def my_main(_run, _config, _log):
         tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
         logger.setup_tb(tb_exp_direc)
     logger.setup_sacred(_run)
-    train(arglist, logger)
+
+    train(arglist, logger, _config)
     # arglist = convert(_config)
     #train(arglist)
 
