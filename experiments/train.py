@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument("--scenario", type=str, default="simple", help="name of the scenario script")
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
-    parser.add_argument("--test-rate", type=int, default=25000, help="test rate") # change to 25000
+    parser.add_argument("--test-rate", type=int, default=2000, help="test rate")
     parser.add_argument("--n-tests", type=int, default=10, help="n tests per test")
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
@@ -50,7 +50,9 @@ def parse_args():
     parser.add_argument("--learn-interval", type=int, default=1, help="train the network after every fixed number of time steps")
     parser.add_argument("--target-update-tau", type=float, default=0.001, help="soft update param")
     parser.add_argument("--optimizer-epsilon", type=float, default=0.01, help="epsilon value for the optimizer")
-    parser.add_argument("--ou-stop-episode", type=int, default=100, help="number of episodes to do exploration")
+    parser.add_argument("--explore-noise", type=str, default="gaussian", help="add gaussian noise to the action selection")
+    parser.add_argument("--start-steps", type=int, default=0, help="randomly sample actions from a uniform distribution for better exploration before this number of timesteps")
+    parser.add_argument("--ou-stop-episode", type=int, default=100, help="number of episodes to do exploration if selecting ou noise")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
@@ -165,14 +167,21 @@ def train(arglist, logger, _config):
         print('Starting iterations...')
         while True:
             # get action
-            action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+            if arglist.explore_noise == "ou":
+                action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
 
-            # add OUNoise to explore
-            if train_step < arglist.max_episode_len * arglist.ou_stop_episode:
-                for _aid in range(env.n):
-                    exploration_noise[_aid].reset()
-                    ou_noise = exploration_noise[_aid].noise()
-                    action_n[_aid] += ou_noise
+                # add OUNoise to explore
+                if train_step < arglist.max_episode_len * arglist.ou_stop_episode:
+                    for _aid in range(env.n):
+                        exploration_noise[_aid].reset()
+                        ou_noise = exploration_noise[_aid].noise()
+                        action_n[_aid] += ou_noise
+            elif arglist.explore_noise == "gaussian":
+                if train_step >= arglist.start_steps:
+                    action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+                    action_n += 0.1 * np.random.randn(env.action_space[0].shape[0])
+                else:
+                    action_n = [env.action_space[i].sample() for i in range(env.n)]
 
             # now clamp actions to permissible action range (necessary after exploration)
             act_limit = env.action_space[0].high[0]   # assuming all dimensions share the same bound
@@ -187,7 +196,6 @@ def train(arglist, logger, _config):
 
             if done and not terminal:
                 done_n = [True for _ in range(len(done_n))]
-                print("True terminated!")
             else:
                 done_n = [False for _ in range(len(done_n))]
 
@@ -446,7 +454,7 @@ if __name__ == '__main__':
     ex.add_config({"name":arglist.exp_name})
 
     # Check if we don't want to save to sacred mongodb
-    no_mongodb = False
+    no_mongodb = True
 
     # for _i, _v in enumerate(params):
     #     if "no-mongo" in _v:
