@@ -22,8 +22,8 @@ class ReplayBuffer(object):
         self._storage = []
         self._next_idx = 0
 
-    def add(self, obs_t, action, reward, obs_tp1, done):
-        data = (obs_t, action, reward, obs_tp1, done)
+    def add(self, obs_t, action, reward, obs_tp1, done, state=None, next_state=None):
+        data = (obs_t, action, reward, obs_tp1, done, state, next_state)
 
         if self._next_idx >= len(self._storage):
             self._storage.append(data)
@@ -32,16 +32,18 @@ class ReplayBuffer(object):
         self._next_idx = (self._next_idx + 1) % self._maxsize
 
     def _encode_sample(self, idxes):
-        obses_t, actions, rewards, obses_tp1, dones = [], [], [], [], []
+        obses_t, actions, rewards, obses_tp1, dones, states, next_states = [], [], [], [], [], [], []
         for i in idxes:
             data = self._storage[i]
-            obs_t, action, reward, obs_tp1, done = data
+            obs_t, action, reward, obs_tp1, done, state, next_state = data
             obses_t.append(np.array(obs_t, copy=False))
             actions.append(np.array(action, copy=False))
             rewards.append(reward)
             obses_tp1.append(np.array(obs_tp1, copy=False))
             dones.append(done)
-        return np.array(obses_t), np.array(actions), np.array(rewards), np.array(obses_tp1), np.array(dones)
+            states.append(np.array(state, copy=False))
+            next_states.append(np.array(next_state, copy=False))
+        return np.array(obses_t), np.array(actions), np.array(rewards), np.array(obses_tp1), np.array(dones), np.array(states), np.array(next_states)
 
     def make_index(self, batch_size):
         return [random.randint(0, len(self._storage) - 1) for _ in range(batch_size)]

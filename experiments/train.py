@@ -53,6 +53,7 @@ def parse_args():
     parser.add_argument("--explore-noise", type=str, default="gaussian", help="add gaussian noise to the action selection")
     parser.add_argument("--start-steps", type=int, default=0, help="randomly sample actions from a uniform distribution for better exploration before this number of timesteps")
     parser.add_argument("--ou-stop-episode", type=int, default=100, help="number of episodes to do exploration if selecting ou noise")
+    parser.add_argument("--use-global-state", action="store_true", default=False, help="the centralised critic concatenates observations of all agents by default, if set True, it uses global state instead")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
@@ -72,8 +73,8 @@ def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_ou
     # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
-        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
-        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
+        out = layers.fully_connected(out, num_outputs=400, activation_fn=tf.nn.relu)
+        out = layers.fully_connected(out, num_outputs=300, activation_fn=tf.nn.relu)
         # out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
 
         # NOTE: use this for continuous action space
@@ -112,13 +113,17 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     model = mlp_model
     trainer = MADDPGAgentTrainer
     print("HALLULAH", env.action_space)
+    if arglist.use_global_state:
+        state_shape = env.get_state().shape
+    else:
+        state_shape = obs_shape_n[0]
     for i in range(num_adversaries):
         trainers.append(trainer(
-            "agent_%d" % i, model, obs_shape_n, env.action_space, i, arglist,
+            "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
             local_q_func=(arglist.adv_policy=='ddpg')))
     for i in range(num_adversaries, env.n):
         trainers.append(trainer(
-            "agent_%d" % i, model, obs_shape_n, env.action_space, i, arglist,
+            "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
             local_q_func=(arglist.good_policy=='ddpg')))
     return trainers
 
@@ -157,6 +162,10 @@ def train(arglist, logger, _config):
         agent_info = [[[]]]  # placeholder for benchmarking info
         saver = tf.train.Saver()
         obs_n = env.reset()
+        if arglist.use_global_state:
+            state = env.get_state()
+        else:
+            state = obs_n
         episode_step = 0
         train_step = 0
         t_start = time.time()
@@ -193,6 +202,10 @@ def train(arglist, logger, _config):
             episode_step += 1
             done = all(done_n)
             terminal = (episode_step >= arglist.max_episode_len)
+            if arglist.use_global_state:
+                next_state = env.get_state()
+            else:
+                next_state = new_obs_n
 
             if done and not terminal:
                 done_n = [True for _ in range(len(done_n))]
@@ -207,8 +220,10 @@ def train(arglist, logger, _config):
             #     print("rew_n", rew_n)
             #     print("new_obs_n", new_obs_n)
             #     print("done_n", done_n)
-                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal)
+                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal,
+                                 state=state, next_state=next_state)
             obs_n = new_obs_n
+            state = next_state
 
             for i, rew in enumerate(rew_n):
                 # NOTE: We do not sum over all agents' individual rewards again for cooperative env.
@@ -218,6 +233,10 @@ def train(arglist, logger, _config):
 
             if done or terminal:
                 obs_n = env.reset()
+                if arglist.use_global_state:
+                    state = env.get_state()
+                else:
+                    state = obs_n
                 episode_step = 0
                 episode_rewards.append(0)
                 for a in agent_rewards:
@@ -454,7 +473,7 @@ if __name__ == '__main__':
     ex.add_config({"name":arglist.exp_name})
 
     # Check if we don't want to save to sacred mongodb
-    no_mongodb = True
+    no_mongodb = False
 
     # for _i, _v in enumerate(params):
     #     if "no-mongo" in _v:
