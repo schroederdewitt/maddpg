@@ -1,7 +1,7 @@
 #!/bin/bash
 HASH=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 4 | head -n 1)
-GPU=$1
-name=${USER}_maddpg_GPU_${GPU}_${HASH}
+#GPU=$1
+name=${USER}_maddpg_${HASH}
 
 echo "Launching container named '${name}' on GPU '${GPU}'"
 # Launches a docker container using our image, and runs the provided command
@@ -12,12 +12,14 @@ else
   cmd=docker
 fi
 
-NV_GPU="$GPU" ${cmd} run -it \
+#NV_GPU="$GPU" 
+${cmd} run -it \
     --name $name \
     --cap-add=SYS_PTRACE \
     --net host \
     -v `pwd`:/maddpg \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -e DISPLAY=unix$DISPLAY \
+    -e PYTHONPATH=/maddpg \
     -t maddpg \
-    ${@:2}
+    ${@:1}

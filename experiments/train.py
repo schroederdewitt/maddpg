@@ -73,8 +73,8 @@ def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_ou
     # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
-        out = layers.fully_connected(out, num_outputs=400, activation_fn=tf.nn.relu)
-        out = layers.fully_connected(out, num_outputs=300, activation_fn=tf.nn.relu)
+        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
+        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
         # out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
 
         # NOTE: use this for continuous action space
@@ -318,7 +318,7 @@ def train(arglist, logger, _config):
             # save model, display training output
             prefix = ""  # not sure if test or train wtf
             if terminal and (len(episode_rewards) % arglist.save_rate == 0):
-                U.save_state(os.path.join(arglist.save_dir, arglist.exp_name, "state"), saver=saver)
+                U.save_state(os.path.join(arglist.save_dir, arglist.exp_name, "state", str(len(episode_rewards))), saver=saver)
                 # print statement depends on whether or not there are adversaries
                 if num_adversaries == 0:
                     print("steps: {}, episodes: {}, mean episode reward: {}, time: {}".format(

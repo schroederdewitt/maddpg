@@ -38,11 +38,11 @@ RUN pip3 install gym==0.10.8
 #### install tensorflow
 #### -------------------------------------------------------------------
 WORKDIR /beieng
-#RUN chmod -R 777 /beieng
-#RUN chmod -R 777 /usr/local
+RUN chmod -R 777 /beieng
+RUN chmod -R 777 /usr/local
 
-#RUN useradd -d /beieng -u 13290 beieng
-#USER beieng
+RUN useradd -d /beieng -u 13290 beieng
+USER beieng
 
 # RUN apt install -y libosmesa6-dev libglew1.5-dev
 RUN mkdir -p /beieng/.mujoco \
