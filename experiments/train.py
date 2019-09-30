@@ -40,6 +40,9 @@ def parse_args():
     parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
     parser.add_argument("--agent-obsk", type=int, default=-1, help="agent configuration for mujoco multi")
     parser.add_argument("--obs-add-global-pos", action="store_true", help="agent configuration for mujoco multi")
+    parser.add_argument("--agent-view-radius", type=float, default=-1, help="view radius of agents")
+    parser.add_argument("--score-function", type=str, default="sum", help="score function")
+    parser.add_argument("--partial-obs", action="store_true", default=False, help="whether the agent has partial obs")
     # Core training parameters
     parser.add_argument("--lr", type=float, default=1e-2, help="learning rate for Adam optimizer")
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
@@ -56,7 +59,7 @@ def parse_args():
     parser.add_argument("--use-global-state", action="store_true", default=False, help="the centralised critic concatenates observations of all agents by default, if set True, it uses global state instead")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
-    parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir", type=str, default="./tmp/policy/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
@@ -97,12 +100,18 @@ def make_env(scenario_name, arglist, benchmark=False):
         # load scenario from script
         scenario = scenarios.load(scenario_name + ".py").Scenario()
         # create world
-        world = scenario.make_world()
+        if not arglist.partial_obs:
+            world = scenario.make_world()
+        else:
+            world = scenario.make_world(args=arglist)
         # create multiagent environment
         if benchmark:
             env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
         else:
-            env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+            if not arglist.partial_obs:
+                env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+            else:
+                env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.full_observation)
 
     print("ENV TOTAL ACTION SPACE: {}", env.action_space)
     return env
@@ -473,7 +482,7 @@ if __name__ == '__main__':
     ex.add_config({"name":arglist.exp_name})
 
     # Check if we don't want to save to sacred mongodb
-    no_mongodb = False
+    no_mongodb = True
 
     # for _i, _v in enumerate(params):
     #     if "no-mongo" in _v:
