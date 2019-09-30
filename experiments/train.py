@@ -482,7 +482,7 @@ if __name__ == '__main__':
     ex.add_config({"name":arglist.exp_name})
 
     # Check if we don't want to save to sacred mongodb
-    no_mongodb = True
+    no_mongodb = False
 
     # for _i, _v in enumerate(params):
     #     if "no-mongo" in _v:
