@@ -26,7 +26,10 @@ RUN apt install -y libosmesa6-dev libglew1.5-dev
 RUN add-apt-repository ppa:jamesh/snap-support && apt-get update && apt install -y patchelf
 
 RUN pip3 install --upgrade tensorflow
-RUN pip3 install sacred pymongo pyyaml
+#RUN pip3 install sacred pymongo pyyaml
+RUN pip3 install pymongo pyyaml
+RUN pip3 install setuptools
+RUN git clone https://github.com/oxwhirl/sacred.git /install/sacred && cd /install/sacred && python3 setup.py install
 WORKDIR /install
 # RUN git clone https://github.com/openai/multiagent-particle-envs.git maenv && cd maenv && pip3 install -e .
 RUN echo "UPDATE21"
