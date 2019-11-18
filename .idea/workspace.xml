@@ -66,7 +66,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/train.py" />
-      <option name="PARAMETERS" value="--scenario &quot;mujoco_multi&quot; --mujoco-name &quot;Ant-v2&quot; --max-episode-len 1000 --num-episodes 3000 --test-rate 3000 --gamma 0.99 --lr 0.001 --batch-size 100 --buffer-warmup 1000 --learn-interval 1 --target-update-tau 0.001 --optimizer-epsilon 0.01 --agent-conf &quot;4x2&quot; --agent-obsk 1 --explore-noise gaussian --start-steps 10000 --exp-name &quot;maddpg_mujoco_multi&quot;" />
+      <option name="PARAMETERS" value="--scenario &quot;mujoco_multi&quot; --mujoco-name &quot;Ant-v2&quot; --max-episode-len 1000 --num-episodes 3000 --test-rate 3000 --gamma 0.99 --lr 0.001 --batch-size 100 --buffer-warmup 1000 --learn-interval 1 --target-update-tau 0.001 --optimizer-epsilon 0.01 --agent-conf &quot;4x2&quot; --agent-obsk 1 --explore-noise gaussian --start-steps 10000 --exp-name &quot;maddpg_ant_multi_conf4x2_obsk1_no_global_pos_hidden400&quot;" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -256,7 +256,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/experiments/train.py</url>
-          <line>237</line>
+          <line>238</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

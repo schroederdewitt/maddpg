@@ -181,6 +181,7 @@ def train(arglist, logger, _config):
             state = obs_n
         episode_step = 0
         train_step = 0
+        log_train_stats_t = -100000
         t_start = time.time()
 
         # add OUNoise objects for each agent
@@ -272,7 +273,8 @@ def train(arglist, logger, _config):
                 continue
 
             # generate test trajectories
-            if terminal and (train_step % arglist.test_rate == 0):
+            # if terminal and (train_step % arglist.test_rate == 0):
+            if terminal and (train_step - log_train_stats_t >= arglist.test_rate):
                 episode_rewards_test = []
                 agent_rewards_test = [[] for _ in trainers]
                 for _ in range(arglist.n_tests):
@@ -311,6 +313,8 @@ def train(arglist, logger, _config):
                 for _i, rew in enumerate(agent_rewards_test):
                     final_ep_ag_rewards.append(np.mean(rew))
                     logger.log_stat(prefix + "_return_mean_agent{}".format(_i), np.mean(rew), train_step)
+
+                log_train_stats_t = train_step
 
             # for displaying learned policies
             if arglist.display:
