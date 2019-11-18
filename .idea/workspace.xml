@@ -22,10 +22,11 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectId" id="1ThteBBedRCn4X5See10eCF1RuO" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/experiments/train.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pymarl-dev" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -51,7 +52,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.particle">
+  <component name="RunManager" selected="Python.mujoco_multi">
+    <configuration name="mujoco_multi" type="PythonConfigurationType" factoryName="Python">
+      <module name="maddpg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/experiments" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/train.py" />
+      <option name="PARAMETERS" value="--scenario &quot;mujoco_multi&quot; --mujoco-name &quot;Ant-v2&quot; --max-episode-len 1000 --num-episodes 3000 --test-rate 3000 --gamma 0.99 --lr 0.001 --batch-size 100 --buffer-warmup 1000 --learn-interval 1 --target-update-tau 0.001 --optimizer-epsilon 0.01 --agent-conf &quot;4x2&quot; --agent-obsk 1 --explore-noise gaussian --start-steps 10000 --exp-name &quot;maddpg_mujoco_multi&quot;" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="particle" type="PythonConfigurationType" factoryName="Python">
       <module name="maddpg" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -167,6 +189,7 @@
     </configuration>
     <list>
       <item itemvalue="Python.simple_spread" />
+      <item itemvalue="Python.mujoco_multi" />
       <item itemvalue="Python.particle" />
       <item itemvalue="Python.simple_spread -- save_dir" />
       <item itemvalue="Python.simple_speaker_listener" />
@@ -200,6 +223,19 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
@@ -220,7 +256,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/experiments/train.py</url>
-          <line>233</line>
+          <line>237</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -232,6 +268,11 @@
           <url>file://$PROJECT_DIR$/../venvs/pymarl-cqmix/src/multiagent/multiagent/scenarios/simple_speaker_listener.py</url>
           <line>89</line>
           <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../../multiagent-particle-envs/multiagent/envs/obsk.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="19" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

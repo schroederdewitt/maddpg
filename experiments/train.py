@@ -37,8 +37,9 @@ def parse_args():
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
+    parser.add_argument("--mujoco-name", type=str, default="HalfCheetah-v2", help="name of the mujoco env")
     parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
-    parser.add_argument("--agent-obsk", type=int, default=-1, help="agent configuration for mujoco multi")
+    parser.add_argument("--agent-obsk", type=int, default=-1, help="the agent can see the k neareast neighbors")
     parser.add_argument("--obs-add-global-pos", action="store_true", help="agent configuration for mujoco multi")
     parser.add_argument("--agent-view-radius", type=float, default=-1, help="view radius of agents")
     parser.add_argument("--score-function", type=str, default="sum", help="score function")
@@ -96,6 +97,9 @@ def make_env(scenario_name, arglist, benchmark=False):
         if scenario_name == "half_cheetah_multi":
             from multiagent.envs import MultiAgentHalfCheetah
             env = MultiAgentHalfCheetah(arglist)
+    elif scenario_name in ["mujoco_multi"]:
+        from multiagent.envs import MujocoMulti
+        env = MujocoMulti(arglist)
     else:
         # load scenario from script
         scenario = scenarios.load(scenario_name + ".py").Scenario()
