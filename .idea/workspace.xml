@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="94c19c0a-15bf-48c4-959b-1db52e730a23" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile-cpu" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile-cpu" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -11,180 +12,21 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/maddpg$simple_reference.coverage" NAME="simple_reference Coverage Results" MODIFIED="1547506835423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
+    <SUITE FILE_PATH="coverage/maddpg$simple_spread__1_.coverage" NAME="simple_spread : display Coverage Results" MODIFIED="1547502984368" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/maddpg$simple_spread.coverage" NAME="simple_spread Coverage Results" MODIFIED="1548014538188" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
     <SUITE FILE_PATH="coverage/maddpg$simple_speaker_listener.coverage" NAME="simple_speaker_listener Coverage Results" MODIFIED="1548015317752" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
-    <SUITE FILE_PATH="coverage/maddpg$simple_spread____save_dir.coverage" NAME="simple_spread -- save_dir Coverage Results" MODIFIED="1547947728211" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
-    <SUITE FILE_PATH="coverage/maddpg$simple_spread__1_.coverage" NAME="simple_spread : display Coverage Results" MODIFIED="1547502984368" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/maddpg$Unnamed.coverage" NAME="simple_spread Coverage Results" MODIFIED="1542136114840" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/experiments/train.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="67" column="52" selection-start-line="67" selection-start-column="52" selection-end-line="67" selection-end-column="52" />
-              <folding>
-                <element signature="e#0#65#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../venvs/pymarl-cqmix/src/multiagent/multiagent/scenarios/simple_speaker_listener.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="235">
-              <caret line="76" column="38" selection-start-line="76" selection-start-column="38" selection-end-line="76" selection-end-column="38" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/maddpg/common/tf_util.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2160">
-              <caret line="147" column="21" selection-start-line="147" selection-start-column="21" selection-end-line="147" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/maddpg/trainer/maddpg.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="91" column="35" selection-start-line="91" selection-start-column="35" selection-end-line="91" selection-end-column="35" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>action(</find>
-      <find>action</find>
-      <find>p_train</find>
-      <find>_get_config</find>
-      <find>logger</find>
-      <find>enumerate</find>
-      <find>Starting</find>
-      <find>Session</find>
-      <find>mongo</find>
-      <find>batch</find>
-      <find>exp_name</find>
-      <find>save_dir</find>
-      <find>get_session</find>
-      <find>act</find>
-      <find>def act</find>
-      <find>th.log</find>
-      <find>SoftCategoricalPdType</find>
-      <find>self.act</find>
-      <find>pdf</find>
-      <find>make_env</find>
-    </findStrings>
+    <SUITE FILE_PATH="coverage/maddpg$simple_reference.coverage" NAME="simple_reference Coverage Results" MODIFIED="1547506835423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
+    <SUITE FILE_PATH="coverage/maddpg$simple_spread____save_dir.coverage" NAME="simple_spread -- save_dir Coverage Results" MODIFIED="1547947728211" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/exp_scripts/simple_spread/test.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts/run.sh" />
-        <option value="$PROJECT_DIR$/run.sh" />
-        <option value="$PROJECT_DIR$/maddpg/common/tf_util.py" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/simple_reference.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/simple_speaker_listener.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_world_comm.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_tag.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_spread.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_speaker_listener.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_reference.sh" />
-        <option value="$PROJECT_DIR$/exp_scripts_alt/baselines/simple_adversary.sh" />
-        <option value="$PROJECT_DIR$/maddpg/trainer/maddpg.py" />
-        <option value="$PROJECT_DIR$/maddpg/common/distributions.py" />
-        <option value="$PROJECT_DIR$/experiments/train.py" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="293" />
-    <option name="y" value="103" />
-    <option name="width" value="1370" />
-    <option name="height" value="1055" />
-  </component>
+  <component name="ProjectId" id="1ThteBBedRCn4X5See10eCF1RuO" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="exp_scripts_alt" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="exp_scripts_alt" type="462c0819:PsiDirectoryNode" />
-              <item name="baselines" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="experiments" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="common" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="trainer" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="maddpg" type="b2602c69:ProjectViewProjectNode" />
-              <item name="maddpg" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
-  </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pymarl-cqmix" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pymarl-dev" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -210,7 +52,49 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.simple_speaker_listener">
+  <component name="RunManager" selected="Python.mujoco_multi">
+    <configuration name="mujoco_multi" type="PythonConfigurationType" factoryName="Python">
+      <module name="maddpg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/experiments" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/train.py" />
+      <option name="PARAMETERS" value="--scenario &quot;mujoco_multi&quot; --mujoco-name &quot;Ant-v2&quot; --max-episode-len 1000 --num-episodes 3000 --test-rate 3000 --gamma 0.99 --lr 0.001 --batch-size 100 --buffer-warmup 1000 --learn-interval 1 --target-update-tau 0.001 --optimizer-epsilon 0.01 --agent-conf &quot;4x2&quot; --agent-obsk 1 --explore-noise gaussian --start-steps 10000 --exp-name &quot;maddpg_ant_multi_conf4x2_obsk1_no_global_pos_hidden400&quot;" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="particle" type="PythonConfigurationType" factoryName="Python">
+      <module name="maddpg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/pymarl/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/experiments" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/train.py" />
+      <option name="PARAMETERS" value="--scenario simple_tag_coop_partial_obs_v2 --max-episode-len 25 --num-episodes 80000 --test-rate 2000 --gamma 0.85 --lr 0.01 --batch-size 1024 --buffer-warmup 1000 --learn-interval 1 --target-update-tau 0.001 --optimizer-epsilon 0.01 --num-units 64 --agent-view-radius 1.0 --score-function &quot;sum&quot; --partial-obs --save-rate 10 --exp-name &quot;maddpg_simple_tag_coop_partial_obs&quot;" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="simple_reference" type="PythonConfigurationType" factoryName="Python">
       <module name="maddpg" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -305,6 +189,8 @@
     </configuration>
     <list>
       <item itemvalue="Python.simple_spread" />
+      <item itemvalue="Python.mujoco_multi" />
+      <item itemvalue="Python.particle" />
       <item itemvalue="Python.simple_spread -- save_dir" />
       <item itemvalue="Python.simple_speaker_listener" />
       <item itemvalue="Python.simple_reference" />
@@ -326,42 +212,29 @@
       <workItem from="1547913080209" duration="1123000" />
       <workItem from="1547947707720" duration="958000" />
       <workItem from="1548013649893" duration="599000" />
-      <workItem from="1548014279854" duration="3212000" />
+      <workItem from="1548014279854" duration="2595000" />
+      <workItem from="1566124386591" duration="6052000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20990000" />
-  </component>
-  <component name="ToolWindowManager">
-    <frame x="67" y="25" width="1853" height="1175" extended-state="6" />
-    <editor active="true" />
-    <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21416713" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3288719" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.40726578" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="11" />
-      <window_info anchor="bottom" id="Python Console" order="12" />
-      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" weight="0.32982844" />
-      <window_info anchor="right" id="Database" order="4" />
-    </layout>
+    <option name="totallyTimeSpent" value="26425000" />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -378,23 +251,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/maddpg/trainer/maddpg.py</url>
-          <line>180</line>
+          <line>182</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/experiments/train.py</url>
-          <line>207</line>
+          <line>238</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/maddpg/trainer/maddpg.py</url>
-          <line>92</line>
+          <line>94</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/../venvs/pymarl-cqmix/src/multiagent/multiagent/scenarios/simple_speaker_listener.py</url>
           <line>89</line>
           <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../../multiagent-particle-envs/multiagent/envs/obsk.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="19" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -405,153 +283,5 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/venv/maddpg/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow.py" />
-    <entry file="file://$PROJECT_DIR$/venv/maddpg/lib/python3.6/site-packages/tensorflow/python/client/session.py" />
-    <entry file="file://$PROJECT_DIR$/../multiagent-particle-envs/multiagent/environment.py" />
-    <entry file="file://$PROJECT_DIR$/../multiagent-particle-envs/multiagent/scenario.py" />
-    <entry file="file://$PROJECT_DIR$/../multiagent-particle-envs/multiagent/core.py" />
-    <entry file="file://$PROJECT_DIR$/../multiagent-particle-envs/multiagent/scenarios/simple_spread.py" />
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/maddpg/lib/python3.6/site-packages/pymongo/mongo_client.py" />
-    <entry file="file://$PROJECT_DIR$/venv/maddpg/lib/python3.6/site-packages/sacred/utils.py" />
-    <entry file="file:///media/cs/DATA/cs/Documents/multiagent-particle-envs/multiagent/environment.py" />
-    <entry file="file://$PROJECT_DIR$/exp_scripts/simple_spread/test.sh" />
-    <entry file="file://$PROJECT_DIR$/exp_scripts/run.sh" />
-    <entry file="file://$PROJECT_DIR$/utils/logging.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="18" column="34" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Dockerfile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="18" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/run.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="22" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/simple_spread/test.sh">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/simple_spread.sh" />
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/simple_reference.sh" />
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/simple_speaker_listener.sh" />
-    <entry file="file://$PROJECT_DIR$/../venvs/pymarl-cqmix/lib/python3.6/site-packages/tensorflow/python/framework/ops.py" />
-    <entry file="file://$PROJECT_DIR$/../venvs/pymarl-cqmix/lib/python3.6/site-packages/tensorflow/python/client/session.py" />
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/baselines/simple_tag.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="81" selection-start-line="13" selection-start-column="81" selection-end-line="13" selection-end-column="81" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/maddpg/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="6" selection-start-column="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/maddpg/common/tf_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2160">
-          <caret line="147" column="21" selection-start-line="147" selection-start-column="21" selection-end-line="147" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/maddpg/common/distributions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="31" column="41" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/baselines/simple_spread.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="85" selection-start-line="13" selection-start-column="85" selection-end-line="13" selection-end-column="85" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/baselines/simple_speaker_listener.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="96" selection-start-line="13" selection-start-column="96" selection-end-line="13" selection-end-column="96" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/baselines/simple_reference.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/baselines/simple_adversary.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="61" selection-start-line="13" selection-start-column="61" selection-end-line="13" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/run.sh">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp_scripts_alt/baselines/simple_world_comm.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="89" selection-start-line="13" selection-start-column="89" selection-end-line="13" selection-end-column="89" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="67" column="52" selection-start-line="67" selection-start-column="52" selection-end-line="67" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#65#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../venvs/pymarl-cqmix/src/multiagent/multiagent/scenarios/simple_speaker_listener.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="76" column="38" selection-start-line="76" selection-start-column="38" selection-end-line="76" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/maddpg/trainer/maddpg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="91" column="35" selection-start-line="91" selection-start-column="35" selection-end-line="91" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
   </component>
 </project>

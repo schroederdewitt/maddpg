@@ -1,0 +1,21 @@
+MuJoCo Pro Lab license activation key, number 6653, type 6.
+
+Issued to Prof. Shimon Whiteson, University of Oxford.
+
+Expires April 26, 2020.
+
+Do not share this file with anyone other than the users covered
+by your license agreement with Roboti LLC. This file activates
+MuJoCo Pro on any computer running any supported OS.
+
+Do not modify this file. Its entire content, including the
+plain text section, is used by the activation manager.
+
+9fdb0cb4e0a4765831e7019e9fe4be07cfbf14dfa55e2e8bb5e8a1d118152dca
+f2f1b5005a70c96501691f3c94a9ccaada223582d5c9677b38e3e0e5e3e72815
+dd93929c4be6dcb32d3e738b8ee176accc8fd08da371700d10b9e539f4e028c7
+3349d34af5b53de93ecc359ed1d846db6d07968bce096ea7d73f84e40454db34
+6851b726f05ded6fc173ab35264151c89ffb3f91ab824e093afa0c0c6784a40f
+590ee0e172dd4e74511be90a81c3634ced8f14c641823e1c0463a68f1970f3d4
+bccf134e2adb4d8c713a42a839ba85780f06bc01cfd5e8e9c7aa0e7b6ddb10d7
+ea1f8f0856bf44447ec3ebb4456fbcb5af96952068df6778caf67227638af513

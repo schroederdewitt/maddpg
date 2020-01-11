@@ -21,8 +21,10 @@ import time
 import pickle
 
 import maddpg.common.tf_util as U
+from maddpg.common.noise import OUNoise
 from maddpg.trainer.maddpg import MADDPGAgentTrainer
 import tensorflow.contrib.layers as layers
+
 
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
@@ -30,19 +32,35 @@ def parse_args():
     parser.add_argument("--scenario", type=str, default="simple", help="name of the scenario script")
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
-    parser.add_argument("--test-rate", type=int, default=25000, help="test rate") # change to 25000
+    parser.add_argument("--test-rate", type=int, default=2000, help="test rate")
     parser.add_argument("--n-tests", type=int, default=10, help="n tests per test")
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
+    parser.add_argument("--mujoco-name", type=str, default="HalfCheetah-v2", help="name of the mujoco env")
+    parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
+    parser.add_argument("--agent-obsk", type=int, default=-1, help="the agent can see the k neareast neighbors")
+    parser.add_argument("--obs-add-global-pos", action="store_true", help="agent configuration for mujoco multi")
+    parser.add_argument("--agent-view-radius", type=float, default=-1, help="view radius of agents")
+    parser.add_argument("--score-function", type=str, default="sum", help="score function")
+    parser.add_argument("--partial-obs", action="store_true", default=False, help="whether the agent has partial obs")
     # Core training parameters
     parser.add_argument("--lr", type=float, default=1e-2, help="learning rate for Adam optimizer")
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
+    parser.add_argument("--discrete-action", action="store_true", default=False, help="use continuous action space by default")
+    parser.add_argument("--buffer-warmup", type=int, default=1000, help="number of transitions the replay buffer should at least have")
+    parser.add_argument("--learn-interval", type=int, default=1, help="train the network after every fixed number of time steps")
+    parser.add_argument("--target-update-tau", type=float, default=0.001, help="soft update param")
+    parser.add_argument("--optimizer-epsilon", type=float, default=0.01, help="epsilon value for the optimizer")
+    parser.add_argument("--explore-noise", type=str, default="gaussian", help="add gaussian noise to the action selection")
+    parser.add_argument("--start-steps", type=int, default=0, help="randomly sample actions from a uniform distribution for better exploration before this number of timesteps")
+    parser.add_argument("--ou-stop-episode", type=int, default=100, help="number of episodes to do exploration if selecting ou noise")
+    parser.add_argument("--use-global-state", action="store_true", default=False, help="the centralised critic concatenates observations of all agents by default, if set True, it uses global state instead")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
-    parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir", type=str, default="./tmp/policy/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
@@ -55,49 +73,85 @@ def parse_args():
 
     return parser.parse_args()
 
-def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, rnn_cell=None):
+def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_out=False, discrete_action=False, rnn_cell=None):
     # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
         out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
         out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
-        out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
+        # out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
+
+        # NOTE: use this for continuous action space
+        if constrain_out and not discrete_action:
+            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=tf.tanh)
+        else:
+            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
         return out
 
 def make_env(scenario_name, arglist, benchmark=False):
     from multiagent.environment import MultiAgentEnv
     import multiagent.scenarios as scenarios
 
-    # load scenario from script
-    scenario = scenarios.load(scenario_name + ".py").Scenario()
-    # create world
-    world = scenario.make_world()
-    # create multiagent environment
-    if benchmark:
-        env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
+    print("HELLO FROM CUSTOMIZED MULTIAGENT ENV!")
+    if scenario_name in ["half_cheetah_multi"]:
+        if scenario_name == "half_cheetah_multi":
+            from multiagent.envs import MultiAgentHalfCheetah
+            env = MultiAgentHalfCheetah(arglist)
+    elif scenario_name in ["mujoco_multi"]:
+        from multiagent.envs import MujocoMulti
+        env = MujocoMulti(arglist)
     else:
-        env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+        # load scenario from script
+        scenario = scenarios.load(scenario_name + ".py").Scenario()
+        # create world
+        if not arglist.partial_obs:
+            world = scenario.make_world()
+        else:
+            world = scenario.make_world(args=arglist)
+        # create multiagent environment
+        if benchmark:
+            env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
+        else:
+            if not arglist.partial_obs:
+                env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+            else:
+                env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.full_observation)
+
+    print("ENV TOTAL ACTION SPACE: {}", env.action_space)
     return env
+
 
 def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     trainers = []
     model = mlp_model
     trainer = MADDPGAgentTrainer
+    print("HALLULAH", env.action_space)
+    if arglist.use_global_state:
+        state_shape = env.get_state().shape
+    else:
+        state_shape = obs_shape_n[0]
     for i in range(num_adversaries):
         trainers.append(trainer(
-            "agent_%d" % i, model, obs_shape_n, env.action_space, i, arglist,
+            "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
             local_q_func=(arglist.adv_policy=='ddpg')))
     for i in range(num_adversaries, env.n):
         trainers.append(trainer(
-            "agent_%d" % i, model, obs_shape_n, env.action_space, i, arglist,
+            "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
             local_q_func=(arglist.good_policy=='ddpg')))
     return trainers
 
 
-def train(arglist, logger):
+def train(arglist, logger, _config):
     with U.single_threaded_session(frac=0.2):
         # Create environment
         env = make_env(arglist.scenario, arglist, arglist.benchmark)
+
+        # Setting the random seed throughout the modules
+        np.random.seed(_config["seed"])
+        tf.set_random_seed(_config["seed"])
+        env.seed(_config["seed"])
+        print("seed: ", _config["seed"])
+
         # Create agent trainers
         obs_shape_n = [env.observation_space[i].shape for i in range(env.n)]
         num_adversaries = min(env.n, arglist.num_adversaries)
@@ -121,30 +175,82 @@ def train(arglist, logger):
         agent_info = [[[]]]  # placeholder for benchmarking info
         saver = tf.train.Saver()
         obs_n = env.reset()
+        if arglist.use_global_state:
+            state = env.get_state()
+        else:
+            state = obs_n
         episode_step = 0
         train_step = 0
+        log_train_stats_t = -100000
         t_start = time.time()
+
+        # add OUNoise objects for each agent
+        exploration_noise = [OUNoise(env.action_space[i].shape[0]) for i in range(env.n)]
 
         print('Starting iterations...')
         while True:
             # get action
-            action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)]
+            if arglist.explore_noise == "ou":
+                action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+
+                # add OUNoise to explore
+                if train_step < arglist.max_episode_len * arglist.ou_stop_episode:
+                    for _aid in range(env.n):
+                        exploration_noise[_aid].reset()
+                        ou_noise = exploration_noise[_aid].noise()
+                        action_n[_aid] += ou_noise
+            elif arglist.explore_noise == "gaussian":
+                if train_step >= arglist.start_steps:
+                    action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+                    action_n += 0.1 * np.random.randn(env.action_space[0].shape[0])
+                else:
+                    action_n = [env.action_space[i].sample() for i in range(env.n)]
+
+            # now clamp actions to permissible action range (necessary after exploration)
+            act_limit = env.action_space[0].high[0]   # assuming all dimensions share the same bound
+            for _aid in range(env.n):
+                np.clip(action_n[_aid], -act_limit, act_limit, out=action_n[_aid])
+
             # environment step
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
             episode_step += 1
             done = all(done_n)
             terminal = (episode_step >= arglist.max_episode_len)
+            if arglist.use_global_state:
+                next_state = env.get_state()
+            else:
+                next_state = new_obs_n
+
+            if done and not terminal:
+                done_n = [True for _ in range(len(done_n))]
+            else:
+                done_n = [False for _ in range(len(done_n))]
+
             # collect experience
             for i, agent in enumerate(trainers):
-                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal)
+            #     print("index i", i)
+            #     print("obs_n", obs_n)
+            #     print("action_n", action_n)
+            #     print("rew_n", rew_n)
+            #     print("new_obs_n", new_obs_n)
+            #     print("done_n", done_n)
+                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal,
+                                 state=state, next_state=next_state)
             obs_n = new_obs_n
+            state = next_state
 
             for i, rew in enumerate(rew_n):
-                episode_rewards[-1] += rew
+                # NOTE: We do not sum over all agents' individual rewards again for cooperative env.
+                # episode_rewards[-1] += rew
                 agent_rewards[i][-1] += rew
+            episode_rewards[-1] += rew_n[0]
 
             if done or terminal:
                 obs_n = env.reset()
+                if arglist.use_global_state:
+                    state = env.get_state()
+                else:
+                    state = obs_n
                 episode_step = 0
                 episode_rewards.append(0)
                 for a in agent_rewards:
@@ -167,7 +273,8 @@ def train(arglist, logger):
                 continue
 
             # generate test trajectories
-            if terminal and (train_step % arglist.test_rate == 0):
+            # if terminal and (train_step % arglist.test_rate == 0):
+            if terminal and (train_step - log_train_stats_t >= arglist.test_rate):
                 episode_rewards_test = []
                 agent_rewards_test = [[] for _ in trainers]
                 for _ in range(arglist.n_tests):
@@ -177,14 +284,24 @@ def train(arglist, logger):
                     episode_test_step = 0
                     while True:
                         action_n = [agent.action_test(obs) for agent, obs in zip(trainers,obs_n)]
+
+                        # now clamp actions to permissible action range (necessary after exploration)
+                        act_limit = env.action_space[0].high[0]  # assuming all dimensions share the same bound
+                        for _aid in range(env.n):
+                            np.clip(action_n[_aid], -act_limit, act_limit, out=action_n[_aid])
+
                         # environment step
                         new_obs_n, rew_n, done_n, info_n = env.step(action_n)
                         episode_test_step += 1
                         done = all(done_n)
                         terminal = (episode_test_step >= arglist.max_episode_len)
+                        obs_n = new_obs_n
+
                         for i, rew in enumerate(rew_n):
-                            episode_rewards_test[-1] += rew
+                            # NOTE: we do not sum over all agents' individual rewards again for cooperative env.
+                            # episode_rewards_test[-1] += rew
                             agent_rewards_test[i][-1] += rew
+                        episode_rewards_test[-1] += rew_n[0]
                         if done or terminal:
                             obs_n = env.reset()
                             break
@@ -197,6 +314,8 @@ def train(arglist, logger):
                     final_ep_ag_rewards.append(np.mean(rew))
                     logger.log_stat(prefix + "_return_mean_agent{}".format(_i), np.mean(rew), train_step)
 
+                log_train_stats_t = train_step
+
             # for displaying learned policies
             if arglist.display:
                 time.sleep(0.1)
@@ -208,12 +327,15 @@ def train(arglist, logger):
             for agent in trainers:
                 agent.preupdate()
             for agent in trainers:
-                loss = agent.update(trainers, train_step)
+                # NOTE: Make sure we use the same values for these parameters as used in pymarl.
+                if len(agent.replay_buffer) > arglist.buffer_warmup and len(agent.replay_buffer) >= arglist.batch_size:
+                    if train_step % arglist.learn_interval == 0:
+                        loss = agent.update(trainers, train_step)
 
             # save model, display training output
             prefix = ""  # not sure if test or train wtf
             if terminal and (len(episode_rewards) % arglist.save_rate == 0):
-                U.save_state(os.path.join(arglist.save_dir, arglist.exp_name, "state"), saver=saver)
+                U.save_state(os.path.join(arglist.save_dir, arglist.exp_name, "state", str(len(episode_rewards))), saver=saver)
                 # print statement depends on whether or not there are adversaries
                 if num_adversaries == 0:
                     print("steps: {}, episodes: {}, mean episode reward: {}, time: {}".format(
@@ -306,7 +428,8 @@ def my_main(_run, _config, _log):
         tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
         logger.setup_tb(tb_exp_direc)
     logger.setup_sacred(_run)
-    train(arglist, logger)
+
+    train(arglist, logger, _config)
     # arglist = convert(_config)
     #train(arglist)
 

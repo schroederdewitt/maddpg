@@ -5,6 +5,7 @@ from tensorflow.python.ops import math_ops
 from multiagent.multi_discrete import MultiDiscrete
 from tensorflow.python.ops import nn
 
+
 class Pd(object):
     """
     A particular probability distribution
@@ -289,10 +290,13 @@ class DiagGaussianPd(Pd):
     def entropy(self):
         return U.sum(self.logstd + .5 * np.log(2.0 * np.pi * np.e), 1)
     def sample(self):
-        if not self.test:
-            return self.mean + self.std * tf.random_normal(tf.shape(self.mean))
-        else:
-            return self.mean
+        # if not self.test:
+        #     return self.mean + self.std * tf.random_normal(tf.shape(self.mean))
+        # else:
+        #     return self.mean
+
+        # NOTE: Now testing adding OUNoise on top of the returned mean
+        return self.mean
     @classmethod
     def fromflat(cls, flat):
         return cls(flat)
