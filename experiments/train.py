@@ -29,6 +29,7 @@ import tensorflow.contrib.layers as layers
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
+    parser.add_argument("--env-name", type=str, default="particle", help="name of the environment")
     parser.add_argument("--scenario", type=str, default="simple", help="name of the scenario script")
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
@@ -37,13 +38,15 @@ def parse_args():
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
+    #parser.add_argument("--score-function", type=str, default="sum", help="score function")
+    #parser.add_argument("--partial-obs", action="store_true", default=False, help="whether the agent has partial obs")
+    # Multiagent Mujoco
     parser.add_argument("--mujoco-name", type=str, default="HalfCheetah-v2", help="name of the mujoco env")
     parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
-    parser.add_argument("--agent-obsk", type=int, default=-1, help="the agent can see the k neareast neighbors")
+    parser.add_argument("--agent-obsk", type=int, default=1, help="the agent can see the k neareast neighbors")
+    parser.add_argument("--env-version", type=int, default=2, help="environment version")
     parser.add_argument("--obs-add-global-pos", action="store_true", help="agent configuration for mujoco multi")
     parser.add_argument("--agent-view-radius", type=float, default=-1, help="view radius of agents")
-    parser.add_argument("--score-function", type=str, default="sum", help="score function")
-    parser.add_argument("--partial-obs", action="store_true", default=False, help="whether the agent has partial obs")
     # Core training parameters
     parser.add_argument("--lr", type=float, default=1e-2, help="learning rate for Adam optimizer")
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
@@ -88,19 +91,11 @@ def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_ou
             out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
         return out
 
-def make_env(scenario_name, arglist, benchmark=False):
-    from multiagent.environment import MultiAgentEnv
-    import multiagent.scenarios as scenarios
+def make_env(env_name, scenario_name, arglist, benchmark=False):
 
-    print("HELLO FROM CUSTOMIZED MULTIAGENT ENV!")
-    if scenario_name in ["half_cheetah_multi"]:
-        if scenario_name == "half_cheetah_multi":
-            from multiagent.envs import MultiAgentHalfCheetah
-            env = MultiAgentHalfCheetah(arglist)
-    elif scenario_name in ["mujoco_multi"]:
-        from multiagent.envs import MujocoMulti
-        env = MujocoMulti(arglist)
-    else:
+    if env_name == "particle":
+        from multiagent.environment import MultiAgentEnv
+        import multiagent.scenarios as scenarios
         # load scenario from script
         scenario = scenarios.load(scenario_name + ".py").Scenario()
         # create world
@@ -116,6 +111,17 @@ def make_env(scenario_name, arglist, benchmark=False):
                 env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
             else:
                 env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.full_observation)
+
+    elif env_name == "multiagent_mujoco":
+        from envs.multiagent_mujoco.mujoco_multi import MujocoMulti
+
+        kwargs = {"scenario": arglist.scenario,
+                  "agent_obsk": arglist.agent_obsk,
+                  "env_version": arglist.env_version,
+                  "agent_conf": arglist.agent_conf,
+                  "obs_add_global_pos": arglist.obs_add_global_pos,
+                  "episode_limit": arglist.max_episode_len}
+        env = MujocoMulti(env_args=kwargs)
 
     print("ENV TOTAL ACTION SPACE: {}", env.action_space)
     return env
@@ -144,7 +150,7 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
 def train(arglist, logger, _config):
     with U.single_threaded_session(frac=0.2):
         # Create environment
-        env = make_env(arglist.scenario, arglist, arglist.benchmark)
+        env = make_env(arglist.env_name, arglist.scenario, arglist, arglist.benchmark)
 
         # Setting the random seed throughout the modules
         np.random.seed(_config["seed"])
