@@ -38,12 +38,13 @@ def parse_args():
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
-    #parser.add_argument("--score-function", type=str, default="sum", help="score function")
-    #parser.add_argument("--partial-obs", action="store_true", default=False, help="whether the agent has partial obs")
+    parser.add_argument("--score-function", type=str, default="sum", help="score function")
+    parser.add_argument("--partial-obs", action="store_true", default=False, help="whether the agent has partial obs")
     # Multiagent Mujoco
     parser.add_argument("--mujoco-name", type=str, default="HalfCheetah-v2", help="name of the mujoco env")
     parser.add_argument("--agent-conf", type=str, default="2x3", help="agent configuration for mujoco multi")
     parser.add_argument("--agent-obsk", type=int, default=1, help="the agent can see the k neareast neighbors")
+    parser.add_argument("--k-categories", type=str, default="qpos,qvel|qpos", help="a string describing which properties are observable at which connection distance as comma-separated lists separated by vertical bars")
     parser.add_argument("--env-version", type=int, default=2, help="environment version")
     parser.add_argument("--obs-add-global-pos", action="store_true", help="agent configuration for mujoco multi")
     parser.add_argument("--agent-view-radius", type=float, default=-1, help="view radius of agents")
@@ -117,6 +118,7 @@ def make_env(env_name, scenario_name, arglist, benchmark=False):
 
         kwargs = {"scenario": arglist.scenario,
                   "agent_obsk": arglist.agent_obsk,
+                  "k_categories": arglist.k_categories,
                   "env_version": arglist.env_version,
                   "agent_conf": arglist.agent_conf,
                   "obs_add_global_pos": arglist.obs_add_global_pos,
@@ -280,7 +282,7 @@ def train(arglist, logger, _config):
 
             # generate test trajectories
             # if terminal and (train_step % arglist.test_rate == 0):
-            if terminal and (train_step - log_train_stats_t >= arglist.test_rate):
+            if (done or terminal) and (train_step - log_train_stats_t >= arglist.test_rate):
                 episode_rewards_test = []
                 agent_rewards_test = [[] for _ in trainers]
                 for _ in range(arglist.n_tests):
@@ -496,7 +498,7 @@ if __name__ == '__main__':
     ex.add_config({"name":arglist.exp_name})
 
     # Check if we don't want to save to sacred mongodb
-    no_mongodb = False
+    no_mongodb = True
 
     # for _i, _v in enumerate(params):
     #     if "no-mongo" in _v:
