@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import tensorflow as tf
+
 import maddpg.common.tf_util as U
 
 from maddpg.common.distributions import make_pdtype
@@ -25,8 +26,9 @@ def make_update_exp(vals, target_vals, target_update_tau=0.001):
     expression = tf.group(*expression)
     return U.function([], [], updates=[expression])
 
-def p_train(make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False,
-            num_units=64, scope="trainer", reuse=None, discrete_action=False, target_update_tau=0.001, use_global_state=False):
+def p_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False,
+            num_units=64, scope="trainer", reuse=None, discrete_action=False, target_update_tau=0.001, use_global_state=False,
+            share_weights=False):
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
@@ -38,11 +40,16 @@ def p_train(make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_func, q_func
         act_ph_n = [act_pdtype_n[i].sample_placeholder([None], name="action"+str(i)) for i in range(len(act_space_n))]
 
         p_input = obs_ph_n[p_index]
+        if share_weights:
+            # add agent id to input as layers share weights
+            p_input = tf.concat([p_input,
+                                 tf.tile(tf.eye(n_agents)[p_index:p_index+1],
+                                         [tf.shape(p_input)[0], 1])], -1)
 
         print("ACTPDTYPE: {}".format(act_space_n))
         print("PINDEX: {}".format(p_index))
-        p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="p_func", num_units=num_units,
-                   constrain_out=True, discrete_action=discrete_action)
+        p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="p_func", reuse=share_weights,
+                   num_units=num_units, constrain_out=True, discrete_action=discrete_action)
         p_func_vars = U.scope_vars(U.absolute_scope_name("p_func"))
 
         # wrap parameters in distribution
@@ -65,7 +72,13 @@ def p_train(make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_func, q_func
             if local_q_func:
                 q_input = tf.concat([state_ph_n[p_index], act_input_n[p_index]], 1)
 
-        q = q_func(q_input, 1, scope="q_func", reuse=True, num_units=num_units,
+        if share_weights:
+            # add agent id to input as layers share weights
+            q_input = tf.concat([q_input,
+                                 tf.tile(tf.eye(n_agents)[p_index:p_index+1],
+                                         [tf.shape(q_input)[0], 1])], -1)
+
+        q = q_func(q_input, 1, scope="q_func", reuse=share_weights, num_units=num_units,
                    constrain_out=False, discrete_action=discrete_action)[:, 0]
         pg_loss = -tf.reduce_mean(q)
 
@@ -83,7 +96,9 @@ def p_train(make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_func, q_func
         p_values = U.function([obs_ph_n[p_index]], p)
 
         # target network
-        target_p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]), scope="target_p_func",
+        target_p = p_func(p_input, int(act_pdtype_n[p_index].param_shape()[0]),
+                          scope="target_p_func",
+                          reuse=share_weights,
                           num_units=num_units,
                           constrain_out=True, discrete_action=discrete_action)
         target_p_func_vars = U.scope_vars(U.absolute_scope_name("target_p_func"))
@@ -94,8 +109,10 @@ def p_train(make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_func, q_func
 
         return act, act_test, train, update_target_p, {'p_values': p_values, 'target_act': target_act}
 
-def q_train(make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False,
-            scope="trainer", reuse=None, num_units=64, discrete_action=False, target_update_tau=0.001, use_global_state=False):
+def q_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_clipping=None, local_q_func=False,
+            scope="trainer", reuse=None, num_units=64, discrete_action=False, target_update_tau=0.001, use_global_state=False,
+            share_weights=False):
+
     with tf.variable_scope(scope, reuse=reuse):
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
@@ -111,8 +128,13 @@ def q_train(make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_func, optimi
         q_input = tf.concat(obs_ph_n + act_ph_n, 1)
         if local_q_func:
             q_input = tf.concat([obs_ph_n[q_index], act_ph_n[q_index]], 1)
-        q = q_func(q_input, 1, scope="q_func", num_units=num_units,
-                   constrain_out=False, discrete_action=discrete_action)[:, 0]
+        if share_weights:
+            # add agent id to input as layers share weights
+            q_input = tf.concat([q_input,
+                                 tf.tile(tf.eye(n_agents)[q_index:q_index+1],
+                                         [tf.shape(q_input)[0], 1])], -1)
+        q = q_func(q_input, 1, scope="q_func", reuse=share_weights, num_units=num_units,
+                   constrain_out=False, discrete_action=discrete_action)[:, 0] #share_weights)[:, 0]
         q_func_vars = U.scope_vars(U.absolute_scope_name("q_func"))
 
         q_loss = tf.reduce_mean(tf.square(q - target_ph))
@@ -128,7 +150,7 @@ def q_train(make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_func, optimi
         q_values = U.function(obs_ph_n + act_ph_n, q)
 
         # target network
-        target_q = q_func(q_input, 1, scope="target_q_func", num_units=num_units,
+        target_q = q_func(q_input, 1, scope="target_q_func", reuse=share_weights, num_units=num_units,
                           constrain_out=False, discrete_action=discrete_action)[:, 0]
         target_q_func_vars = U.scope_vars(U.absolute_scope_name("target_q_func"))
         update_target_q = make_update_exp(q_func_vars, target_q_func_vars, target_update_tau)
@@ -138,7 +160,7 @@ def q_train(make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_func, optimi
         return train, update_target_q, {'q_values': q_values, 'target_q_values': target_q_values}
 
 class MADDPGAgentTrainer(AgentTrainer):
-    def __init__(self, name, model, state_shape, obs_shape_n, act_space_n, agent_index, args, local_q_func=False):
+    def __init__(self, n_agents, name, model, state_shape, obs_shape_n, act_space_n, agent_index, args, local_q_func=False):
         self.name = name
         self.n = len(obs_shape_n)
         self.agent_index = agent_index
@@ -151,6 +173,7 @@ class MADDPGAgentTrainer(AgentTrainer):
 
         # Create all the functions necessary to train the model
         self.q_train, self.q_update, self.q_debug = q_train(
+            n_agents=n_agents,
             scope=self.name,
             make_state_ph_n=state_ph_n,
             make_obs_ph_n=obs_ph_n,
@@ -163,9 +186,11 @@ class MADDPGAgentTrainer(AgentTrainer):
             num_units=args.num_units,
             discrete_action=args.discrete_action,
             target_update_tau=args.target_update_tau,
-            use_global_state=args.use_global_state
+            use_global_state=args.use_global_state,
+            share_weights=args.share_weights
         )
         self.act, self.act_test, self.p_train, self.p_update, self.p_debug = p_train(
+            n_agents = n_agents,
             scope=self.name,
             make_state_ph_n=state_ph_n,
             make_obs_ph_n=obs_ph_n,
@@ -179,7 +204,8 @@ class MADDPGAgentTrainer(AgentTrainer):
             num_units=args.num_units,
             discrete_action=args.discrete_action,
             target_update_tau=args.target_update_tau,
-            use_global_state=args.use_global_state
+            use_global_state=args.use_global_state,
+            share_weights=args.share_weights
         )
 
         # Create experience buffer

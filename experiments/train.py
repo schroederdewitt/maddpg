@@ -23,7 +23,8 @@ import pickle
 import maddpg.common.tf_util as U
 from maddpg.common.noise import OUNoise
 from maddpg.trainer.maddpg import MADDPGAgentTrainer
-import tensorflow.contrib.layers as layers
+
+from tensorflow.contrib import layers
 
 
 def parse_args():
@@ -62,6 +63,7 @@ def parse_args():
     parser.add_argument("--start-steps", type=int, default=0, help="randomly sample actions from a uniform distribution for better exploration before this number of timesteps")
     parser.add_argument("--ou-stop-episode", type=int, default=100, help="number of episodes to do exploration if selecting ou noise")
     parser.add_argument("--use-global-state", action="store_true", default=False, help="the centralised critic concatenates observations of all agents by default, if set True, it uses global state instead")
+    parser.add_argument("--share-weights", action="store_true", default=False)
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default=None, help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="./tmp/policy/", help="directory in which training state and model should be saved")
@@ -77,19 +79,26 @@ def parse_args():
 
     return parser.parse_args()
 
-def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_out=False, discrete_action=False, rnn_cell=None):
+def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_out=False, discrete_action=False,
+              rnn_cell=None):
+
     # This model takes as input an observation and returns values of all actions
-    with tf.variable_scope(scope, reuse=reuse):
+    with tf.variable_scope(scope+"fc1", reuse=tf.AUTO_REUSE):
+
         out = input
-        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
-        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu)
+        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu, scope=scope)
+
+    with tf.variable_scope(scope + "fc2", reuse=tf.AUTO_REUSE):
+        out = layers.fully_connected(out, num_outputs=num_units, activation_fn=tf.nn.relu, scope=scope)
         # out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
 
         # NOTE: use this for continuous action space
         if constrain_out and not discrete_action:
-            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=tf.tanh)
+            with tf.variable_scope(scope + "fc3", reuse=tf.AUTO_REUSE):
+                out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=tf.tanh, scope=scope)
         else:
-            out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
+            with tf.variable_scope(scope + "fc3", reuse=tf.AUTO_REUSE):
+                out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None, scope=scope)
         return out
 
 def make_env(env_name, scenario_name, arglist, benchmark=False):
@@ -138,13 +147,14 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
         state_shape = env.get_state().shape
     else:
         state_shape = obs_shape_n[0]
+    n_agents = len(range(num_adversaries, env.n))
     for i in range(num_adversaries):
         trainers.append(trainer(
-            "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
+            n_agents, "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
             local_q_func=(arglist.adv_policy=='ddpg')))
     for i in range(num_adversaries, env.n):
         trainers.append(trainer(
-            "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
+            n_agents, "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
             local_q_func=(arglist.good_policy=='ddpg')))
     return trainers
 

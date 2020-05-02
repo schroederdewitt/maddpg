@@ -1,7 +1,10 @@
 import collections
 import numpy as np
 import os
+
+
 import tensorflow as tf
+
 
 def sum(x, axis=None, keepdims=False):
     return tf.reduce_sum(x, axis=None if axis is None else [axis], keep_dims = keepdims)
