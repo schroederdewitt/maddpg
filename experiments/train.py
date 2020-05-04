@@ -416,7 +416,10 @@ def train(arglist, logger, _config):
                         agent_rewards_test[i].append(0)
                     episode_test_step = 0
                     while True:
-                        action_n = [agent.action_test(obs).squeeze(0) for agent, obs in zip(trainers, obs_n)]
+                        if arglist.actor_lstm or arglist.critic_lstm:
+                            action_n = [agent.action_test(obs).squeeze(0) for agent, obs in zip(trainers, obs_n)]
+                        else:
+                            action_n = [agent.action_test(obs) for agent, obs in zip(trainers, obs_n)]
 
                         # now clamp actions to permissible action range (necessary after exploration)
                         act_limit = env.action_space[0].high[0]  # assuming all dimensions share the same bound
@@ -425,7 +428,8 @@ def train(arglist, logger, _config):
 
                         # environment step
                         new_obs_n, rew_n, done_n, info_n = env.step(action_n)
-                        new_obs_n = [o[None] for o in new_obs_n]
+                        if arglist.actor_lstm or arglist.critic_lstm:
+                            new_obs_n = [o[None] for o in new_obs_n]
                         episode_test_step += 1
                         done = all(done_n)
                         terminal = (episode_test_step >= arglist.max_episode_len)
@@ -438,7 +442,8 @@ def train(arglist, logger, _config):
                         episode_rewards_test[-1] += rew_n[0]
                         if done or terminal:
                             obs_n = env.reset()
-                            obs_n = [o[None] for o in obs_n]
+                            if arglist.actor_lstm or arglist.critic_lstm:
+                                obs_n = [o[None] for o in obs_n]
                             break
                 # save them to sacred
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
