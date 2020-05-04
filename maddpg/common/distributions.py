@@ -271,11 +271,11 @@ class SoftMultiCategoricalPd(Pd):  # doesn't work yet
 class DiagGaussianPd(Pd):
     def __init__(self, flat, test):
         self.flat = flat
-        mean, logstd = tf.split(axis=1, num_or_size_splits=2, value=flat)
+        mean, logstd = tf.split(axis=-1, num_or_size_splits=2, value=flat)
         self.mean = mean
         self.logstd = logstd
         self.std = tf.exp(logstd)
-        self.test = test
+
     def flatparam(self):
         return self.flat        
     def mode(self):

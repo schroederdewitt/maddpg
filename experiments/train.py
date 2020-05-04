@@ -22,7 +22,7 @@ import pickle
 
 import maddpg.common.tf_util as U
 from maddpg.common.noise import OUNoise
-from maddpg.trainer.maddpg import MADDPGAgentTrainer
+from maddpg.trainer.maddpg import MADDPGAgentTrainer, _RMADDPGAgentTrainer
 
 from tensorflow.contrib import layers
 
@@ -54,6 +54,8 @@ def parse_args():
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
+    parser.add_argument("--critic-lstm", action="store_true", default=False)
+    parser.add_argument("--actor-lstm", action="store_true", default=False)
     parser.add_argument("--discrete-action", action="store_true", default=False, help="use continuous action space by default")
     parser.add_argument("--buffer-warmup", type=int, default=1000, help="number of transitions the replay buffer should at least have")
     parser.add_argument("--learn-interval", type=int, default=1, help="train the network after every fixed number of time steps")
@@ -79,6 +81,7 @@ def parse_args():
 
     return parser.parse_args()
 
+
 def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_out=False, discrete_action=False,
               rnn_cell=None):
 
@@ -101,6 +104,47 @@ def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, constrain_ou
         with tf.variable_scope(scope + "fc3", reuse=reuse_flag):
             out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
     return out
+
+
+def lstm_fc_model(input_ph, num_outputs, scope, reuse=False, num_units=64):
+    reuse_flag = False if not reuse else tf.AUTO_REUSE
+
+    with tf.variable_scope(scope+"fc1", reuse=reuse_flag):
+        input_, c_, h_ = input_ph[:,:,:-2*num_units], input_ph[:,:,-2*num_units:-1*num_units], input_ph[:,:,-1*num_units:]
+        out = input_
+        out = layers.fully_connected(out, num_outputs=int(input_.shape[-1]), activation_fn=tf.nn.relu)
+        c_, h_ = tf.squeeze(c_, [1]), tf.squeeze(h_, [1])
+
+    with tf.variable_scope(scope + "lstm", reuse=reuse_flag):
+        cell = tf.contrib.rnn.LSTMCell(num_units=num_units)
+        state = tf.contrib.rnn.LSTMStateTuple(c_,h_)
+        out, state = tf.nn.dynamic_rnn(cell, out, initial_state=state)
+
+    with tf.variable_scope(scope + "fc2", reuse=reuse_flag):
+        out = layers.fully_connected(out, num_outputs=num_outputs, activation_fn=None)
+        c_, h_ = tf.expand_dims(state.c, axis=1), tf.expand_dims(state.h, axis=1) # ensure same shape as input state
+        state = tf.contrib.rnn.LSTMStateTuple(c_,h_)
+        return out, state
+
+
+def get_lstm_states(_type, trainers):
+    if _type == 'p':
+        return [agent.p_c for agent in trainers], [agent.p_h for agent in trainers]
+    if _type == 'q':
+        return [agent.q_c for agent in trainers], [agent.q_h for agent in trainers]
+    else:
+        raise ValueError("unknown type")
+
+
+def update_critic_lstm(trainers, obs_n, action_n, p_states):
+    obs_n = [o[None] for o in obs_n]
+    action_n = [a[None] for a in action_n]
+    q_c_n = [trainer.q_c for trainer in trainers]
+    q_h_n = [trainer.q_h for trainer in trainers]
+    p_c_n, p_h_n = p_states if p_states else [None, None]
+
+    for trainer in trainers:
+        q_val, (trainer.q_c, trainer.q_h) = trainer.q_debug['q_values'](*(obs_n + action_n + q_c_n + q_h_n))
 
 def make_env(env_name, scenario_name, arglist, benchmark=False):
 
@@ -141,23 +185,39 @@ def make_env(env_name, scenario_name, arglist, benchmark=False):
 
 def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     trainers = []
-    model = mlp_model
-    trainer = MADDPGAgentTrainer
-    print("HALLULAH", env.action_space)
-    if arglist.use_global_state:
-        state_shape = env.get_state().shape
+    if not (arglist.actor_lstm and arglist.critic_lstm):
+        model = mlp_model
+        trainer = MADDPGAgentTrainer
+        if arglist.use_global_state:
+            state_shape = env.get_state().shape
+        else:
+            state_shape = obs_shape_n[0]
+        n_agents = len(range(num_adversaries, env.n))
+        for i in range(num_adversaries):
+            trainers.append(trainer(
+                n_agents, "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
+                local_q_func=(arglist.adv_policy == 'ddpg')))
+        for i in range(num_adversaries, env.n):
+            trainers.append(trainer(
+                n_agents, "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
+                local_q_func=(arglist.good_policy == 'ddpg')))
+        return trainers
     else:
-        state_shape = obs_shape_n[0]
-    n_agents = len(range(num_adversaries, env.n))
-    for i in range(num_adversaries):
-        trainers.append(trainer(
-            n_agents, "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
-            local_q_func=(arglist.adv_policy=='ddpg')))
-    for i in range(num_adversaries, env.n):
-        trainers.append(trainer(
-            n_agents, "agent_%d" % i, model, state_shape, obs_shape_n, env.action_space, i, arglist,
-            local_q_func=(arglist.good_policy=='ddpg')))
-    return trainers
+        trainer = _RMADDPGAgentTrainer
+        if arglist.use_global_state:
+            state_shape = env.get_state().shape
+        else:
+            state_shape = obs_shape_n[0]
+        n_agents = len(range(num_adversaries, env.n))
+        for i in range(num_adversaries):
+            trainers.append(trainer(
+                n_agents, "agent_%d" % i, mlp_model, lstm_fc_model, state_shape, obs_shape_n, env.action_space, i, arglist,
+                local_q_func=(arglist.adv_policy=='ddpg')))
+        for i in range(num_adversaries, env.n):
+            trainers.append(trainer(
+                n_agents, "agent_%d" % i, mlp_model, lstm_fc_model, state_shape, obs_shape_n, env.action_space, i, arglist,
+                local_q_func=(arglist.good_policy=='ddpg')))
+        return trainers
 
 
 def train(arglist, logger, _config):
@@ -194,24 +254,45 @@ def train(arglist, logger, _config):
         agent_info = [[[]]]  # placeholder for benchmarking info
         saver = tf.train.Saver()
         obs_n = env.reset()
+        if arglist.actor_lstm or arglist.critic_lstm:
+            obs_n = [o[None] for o in obs_n]
+
         if arglist.use_global_state:
             state = env.get_state()
+            if arglist.actor_lstm or arglist.critic_lstm:
+                state = [s[None] for s in state]
         else:
             state = obs_n
+
         episode_step = 0
         train_step = 0
         log_train_stats_t = -100000
         t_start = time.time()
+        new_episode = True
 
         # add OUNoise objects for each agent
         exploration_noise = [OUNoise(env.action_space[i].shape[0]) for i in range(env.n)]
 
         print('Starting iterations...')
         while True:
-            # get action
-            if arglist.explore_noise == "ou":
-                action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+            if arglist.actor_lstm:
+                # get critic input states
+                p_in_c_n, p_in_h_n = get_lstm_states('p', trainers)  # num_trainers x 1 x 1 x 64
+            if arglist.critic_lstm:
+                q_in_c_n, q_in_h_n = get_lstm_states('q', trainers)  # num_trainers x 1 x 1 x 64
 
+            # get action
+
+            action_n = [agent.action(obs) for agent, obs in zip(trainers, obs_n)]
+            if arglist.critic_lstm:
+                # get critic output states
+                p_states = [p_in_c_n, p_in_h_n] if arglist.actor_lstm else []
+                update_critic_lstm(trainers, obs_n, action_n, p_states)
+                q_out_c_n, q_out_h_n = get_lstm_states('q', trainers)  # num_trainers x 1 x 1 x 64
+            if arglist.actor_lstm:
+                p_out_c_n, p_out_h_n = get_lstm_states('p', trainers)  # num_trainers x 1 x 1 x 64
+
+            if arglist.explore_noise == "ou":
                 # add OUNoise to explore
                 if train_step < arglist.max_episode_len * arglist.ou_stop_episode:
                     for _aid in range(env.n):
@@ -231,7 +312,12 @@ def train(arglist, logger, _config):
                 np.clip(action_n[_aid], -act_limit, act_limit, out=action_n[_aid])
 
             # environment step
-            new_obs_n, rew_n, done_n, info_n = env.step(action_n)
+            if arglist.actor_lstm or arglist.critic_lstm:
+                new_obs_n, rew_n, done_n, info_n = env.step(action_n.squeeze(1))
+                new_obs_n = [o[None] for o in new_obs_n]
+            else:
+                new_obs_n, rew_n, done_n, info_n = env.step(action_n)
+
             episode_step += 1
             done = all(done_n)
             terminal = (episode_step >= arglist.max_episode_len)
@@ -247,14 +333,30 @@ def train(arglist, logger, _config):
 
             # collect experience
             for i, agent in enumerate(trainers):
-            #     print("index i", i)
-            #     print("obs_n", obs_n)
-            #     print("action_n", action_n)
-            #     print("rew_n", rew_n)
-            #     print("new_obs_n", new_obs_n)
-            #     print("done_n", done_n)
-                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal,
-                                 state=state, next_state=next_state)
+                num_episodes = len(episode_rewards)
+                # do this every iteration
+                if arglist.critic_lstm and arglist.actor_lstm:
+                    agent.experience(obs_n[i], action_n[i], rew_n[i],
+                                     new_obs_n[i], done_n[i],  # terminal,
+                                     p_in_c_n[i][0], p_in_h_n[i][0],
+                                     p_out_c_n[i][0], p_out_h_n[i][0],
+                                     q_in_c_n[i][0], q_in_h_n[i][0],
+                                     q_out_c_n[i][0], q_out_h_n[i][0], state, next_state, new_episode)
+                elif arglist.critic_lstm:
+                    agent.experience(obs_n[i], action_n[i], rew_n[i],
+                                     new_obs_n[i], done_n[i],  # terminal,
+                                     q_in_c_n[i][0], q_in_h_n[i][0],
+                                     q_out_c_n[i][0], q_out_h_n[i][0], state, next_state, new_episode)
+                elif arglist.actor_lstm:
+                    agent.experience(obs_n[i], action_n[i], rew_n[i],
+                                     new_obs_n[i], done_n[i],  # terminal,
+                                     p_in_c_n[i][0], p_in_h_n[i][0],
+                                     p_out_c_n[i][0], p_out_h_n[i][0],
+                                     state, next_state, new_episode)
+                else:
+                    agent.experience(obs_n[i], action_n[i], rew_n[i],
+                                     new_obs_n[i], done_n[i],  # terminal,
+                                     state, next_state, new_episode)
             obs_n = new_obs_n
             state = next_state
 
@@ -265,16 +367,28 @@ def train(arglist, logger, _config):
             episode_rewards[-1] += rew_n[0]
 
             if done or terminal:
+                new_episode = True
+                num_episodes = len(episode_rewards)
                 obs_n = env.reset()
+                # reset trainers
+                if arglist.actor_lstm or arglist.critic_lstm:
+                    for agent in trainers:
+                        agent.reset_lstm()
+                    obs_n = [o[None] for o in obs_n]
                 if arglist.use_global_state:
                     state = env.get_state()
+                    if arglist.actor_lstm or arglist.critic_lstm:
+                        state = [s[None] for s in state]
                 else:
                     state = obs_n
+
                 episode_step = 0
                 episode_rewards.append(0)
                 for a in agent_rewards:
                     a.append(0)
                 agent_info.append([[]])
+            else:
+                new_episode = False
 
             # increment global step counter
             train_step += 1
@@ -302,7 +416,7 @@ def train(arglist, logger, _config):
                         agent_rewards_test[i].append(0)
                     episode_test_step = 0
                     while True:
-                        action_n = [agent.action_test(obs) for agent, obs in zip(trainers,obs_n)]
+                        action_n = [agent.action_test(obs).squeeze(0) for agent, obs in zip(trainers, obs_n)]
 
                         # now clamp actions to permissible action range (necessary after exploration)
                         act_limit = env.action_space[0].high[0]  # assuming all dimensions share the same bound
@@ -311,6 +425,7 @@ def train(arglist, logger, _config):
 
                         # environment step
                         new_obs_n, rew_n, done_n, info_n = env.step(action_n)
+                        new_obs_n = [o[None] for o in new_obs_n]
                         episode_test_step += 1
                         done = all(done_n)
                         terminal = (episode_test_step >= arglist.max_episode_len)
@@ -323,6 +438,7 @@ def train(arglist, logger, _config):
                         episode_rewards_test[-1] += rew_n[0]
                         if done or terminal:
                             obs_n = env.reset()
+                            obs_n = [o[None] for o in obs_n]
                             break
                 # save them to sacred
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
@@ -343,8 +459,10 @@ def train(arglist, logger, _config):
 
             # update all trainers, if not in display or benchmark mode
             loss = None
+            inds = None
             for agent in trainers:
-                agent.preupdate()
+                agent.preupdate(inds)
+
             for agent in trainers:
                 # NOTE: Make sure we use the same values for these parameters as used in pymarl.
                 if len(agent.replay_buffer) > arglist.buffer_warmup and len(agent.replay_buffer) >= arglist.batch_size:
