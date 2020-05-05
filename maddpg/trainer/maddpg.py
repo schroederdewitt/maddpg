@@ -315,6 +315,7 @@ def _p_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_f
         # set up placeholders
         obs_ph_n = make_obs_ph_n
         state_ph_n = make_state_ph_n
+
         act_ph_n = [act_pdtype_n[i].sample_placeholder([None, 1], name="action" + str(i)) for i in
                     range(len(act_space_n))]
 
@@ -333,12 +334,26 @@ def _p_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_f
                 p_input = tf.concat([obs_ph_n[p_index], p_c_ph, p_h_ph], -1)
             else:
                 p_input = tf.concat([state_ph_n, p_c_ph, p_h_ph], -1)
+
+            if share_weights:
+                # add agent id to input as layers share weights
+                p_input = tf.concat([p_input,
+                                     tf.expand_dims(tf.tile(tf.eye(n_agents)[p_index:p_index + 1],
+                                                   [tf.shape(p_input)[0], 1]), 1)], -1)
+
             p, p_state_out = p_func(p_input, p_res, scope="p_func", num_units=num_units)
         else:
             if not use_global_state:
                 p_input = obs_ph_n[p_index]
             else:
                 p_input = state_ph_n[p_index]
+
+            if share_weights:
+                # add agent id to input as layers share weights
+                p_input = tf.concat([p_input,
+                                     tf.expand_dims(tf.tile(tf.eye(n_agents)[p_index:p_index + 1],
+                                                   [tf.shape(p_input)[0], 1]), 1)], -1)
+
             p = p_func(p_input, p_res, scope="p_func", num_units=num_units)
 
         p_func_vars = U.scope_vars(U.absolute_scope_name("p_func"))
@@ -353,19 +368,25 @@ def _p_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_f
         act_input_n = act_ph_n + []
         act_input_n[p_index] = act_pd.sample()
 
+        # deal with central state
+        obs_or_state = state_ph_n if use_global_state else obs_ph_n
+
         # need to check this -- need safety checks
         if q_lstm_on:
-            if not use_global_state:
-                q_input = tf.concat(obs_ph_n + act_input_n + q_c_ph_n + q_h_ph_n, -1)
-                q, _ = q_func(q_input, 1, scope="q_func", num_units=num_units, reuse=True)
-            else:
-                q_input = tf.concat(state_ph_n + obs_ph_n + act_input_n + q_c_ph_n + q_h_ph_n, -1)
-                q, _ = q_func(q_input, 1, scope="q_func", num_units=num_units, reuse=True)
+            q_input = tf.concat(obs_or_state + act_input_n + q_c_ph_n + q_h_ph_n, -1) #  unclear + obs_ph_n
+            if share_weights:
+                # add agent id to input as layers share weights
+                q_input = tf.concat([q_input,
+                                     tf.expand_dims(tf.tile(tf.eye(n_agents)[p_index:p_index + 1],
+                                                   [tf.shape(q_input)[0], 1]), 1)], -1)
+            q, _ = q_func(q_input, 1, scope="q_func", num_units=num_units, reuse=True)
         else:
-            if not use_global_state:
-                q_input = tf.concat(obs_ph_n + act_input_n, -1)
-            else:
-                q_input = tf.concat(state_ph_n + obs_ph_n + act_input_n, -1)
+            q_input = tf.concat(obs_or_state + act_input_n, -1)
+            if share_weights:
+                # add agent id to input as layers share weights
+                q_input = tf.concat([q_input,
+                                     tf.expand_dims(tf.tile(tf.eye(n_agents)[p_index:p_index + 1],
+                                                   [tf.shape(q_input)[0], 1]), 1)], -1)
             q = q_func(q_input, 1, scope="q_func", num_units=num_units, reuse=True)
 
         q = q[:, 0]
@@ -377,14 +398,14 @@ def _p_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_f
 
         # Create callable functions
         if p_lstm_on and q_lstm_on:
-            train = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss,
+            train = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss,
                                updates=[optimize_expr])
         elif p_lstm_on:
-            train = U.function(inputs=obs_ph_n + act_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss, updates=[optimize_expr])
+            train = U.function(inputs=obs_or_state + act_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss, updates=[optimize_expr])
         elif q_lstm_on:
-            train = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=loss, updates=[optimize_expr])
+            train = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=loss, updates=[optimize_expr])
         else:
-            train = U.function(inputs=obs_ph_n + act_ph_n, outputs=loss, updates=[optimize_expr])
+            train = U.function(inputs=obs_or_state + act_ph_n, outputs=loss, updates=[optimize_expr])
 
         if p_lstm_on:
             act = U.function(inputs=[obs_ph_n[p_index], p_c_ph, p_h_ph], outputs=[act_sample, p_state_out])
@@ -421,6 +442,11 @@ def _q_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_f
 
         # set up placeholders
         obs_ph_n = make_obs_ph_n
+        state_ph_n = make_state_ph_n
+
+        # deal with central state
+        obs_or_state = state_ph_n if use_global_state else obs_ph_n
+
         act_ph_n = [act_pdtype_n[i].sample_placeholder([None, 1], name="action" + str(i)) for i in
                     range(len(act_space_n))]
         target_ph = tf.placeholder(tf.float32, [None, 1], name="target")
@@ -429,17 +455,25 @@ def _q_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_f
         p_res = int(act_pdtype_n[q_index].param_shape()[0])
 
         # for actor
-        p_c_ph, p_h_ph = get_lstm_state_ph(name='p_', n_batches=None, num_units=num_units)
-        p_c_ph_n, p_h_ph_n = [p_c_ph for i in range(len(obs_ph_n))], [p_h_ph for i in range(len(obs_ph_n))]
+        #p_c_ph, p_h_ph = get_lstm_state_ph(name='p_', n_batches=None, num_units=num_units)
+        #p_c_ph_n, p_h_ph_n = [p_c_ph for i in range(len(obs_ph_n))], [p_h_ph for i in range(len(obs_ph_n))]
         # for critic
         q_c_ph, q_h_ph = get_lstm_state_ph(name='q_', n_batches=None, num_units=num_units)
         q_c_ph_n, q_h_ph_n = [q_c_ph for i in range(len(obs_ph_n))], [q_h_ph for i in range(len(obs_ph_n))]
 
         if q_lstm_on:
-            q_input = tf.concat(obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n, -1)
+            q_input = tf.concat(obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n, -1)
+            if share_weights:
+                q_input = tf.concat([q_input,
+                                     tf.expand_dims(tf.tile(tf.eye(n_agents)[q_index:q_index + 1],
+                                                            [tf.shape(q_input)[0], 1]), 1)], -1)
             q, q_state_out = q_func(q_input, 1, scope="q_func", num_units=num_units)
         else:
-            q_input = tf.concat(obs_ph_n + act_ph_n, -1)
+            q_input = tf.concat(obs_or_state + act_ph_n, -1)
+            if share_weights:
+                q_input = tf.concat([q_input,
+                                     tf.expand_dims(tf.tile(tf.eye(n_agents)[q_index:q_index + 1],
+                                                            [tf.shape(q_input)[0], 1]), 1)], -1)
             q = q_func(q_input, 1, scope="q_func", num_units=num_units)
 
         q = q[:, 0]
@@ -449,25 +483,20 @@ def _q_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_f
         q_loss = tf.reduce_mean(tf.square(q - target_ph))
 
         # viscosity solution to Bellman differential equation in place of an initial condition
-        q_reg = tf.reduce_mean(tf.square(q))
+        # q_reg = tf.reduce_mean(tf.square(q))
         loss = q_loss  # + 1e-3 * q_reg
 
         optimize_expr = U.minimize_and_clip(optimizer, loss, q_func_vars, grad_norm_clipping)
 
         # Create callable functions
         if q_lstm_on:
-            if not use_global_state:
-                q_values = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=[q, q_state_out])
-                train = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n + [target_ph], outputs=loss,
-                               updates=[optimize_expr])
-            else:
-                q_values = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=[q, q_state_out])
-                train = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n + [target_ph], outputs=loss,
-                               updates=[optimize_expr])
+            q_values = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=[q, q_state_out])
+            train = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n + [target_ph], outputs=loss,
+                           updates=[optimize_expr])
             target_q, target_q_state_out = q_func(q_input, 1, scope="target_q_func", num_units=num_units)
         else:
-            q_values = U.function(inputs=obs_ph_n + act_ph_n, outputs=q)
-            train = U.function(inputs=obs_ph_n + act_ph_n + [target_ph], outputs=loss, updates=[optimize_expr])
+            q_values = U.function(inputs=obs_or_state + act_ph_n, outputs=q)
+            train = U.function(inputs=obs_or_state + act_ph_n + [target_ph], outputs=loss, updates=[optimize_expr])
             target_q = q_func(q_input, 1, scope="target_q_func", num_units=num_units)
 
         target_q = target_q[:, 0]
@@ -475,9 +504,9 @@ def _q_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, q_index, q_f
         update_target_q = make_update_exp(q_func_vars, target_q_func_vars)
 
         if q_lstm_on:
-            target_q_values = U.function(inputs=obs_ph_n + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=target_q)
+            target_q_values = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=target_q)
         else:
-            target_q_values = U.function(inputs=obs_ph_n + act_ph_n, outputs=target_q)
+            target_q_values = U.function(inputs=obs_or_state + act_ph_n, outputs=target_q)
 
         return train, update_target_q, {'q_values': q_values, 'target_q_values': target_q_values}
 
@@ -628,8 +657,8 @@ class _RMADDPGAgentTrainer(AgentTrainer):
         for i in range(self.n):
             # if self.args.actor_lstm and self.args.critic_lstm:
             # print("getting both lstm states")
-            obs, act, rew, obs_next, state, state_next, done, \
-            p_c_in_t, p_h_in_t, p_c_out_t, p_h_out_t,q_c_in_t, q_h_in_t, q_c_out_t, q_h_out_t  = agents[i].replay_buffer.sample_index(index)
+            obs, act, rew, obs_next, done, p_c_in_t, p_h_in_t, p_c_out_t, p_h_out_t,q_c_in_t, q_h_in_t, q_c_out_t, \
+                q_h_out_t, state, state_next  = agents[i].replay_buffer.sample_index(index)
 
             obs_n.append(obs)
             obs_next_n.append(obs_next)
@@ -660,11 +689,15 @@ class _RMADDPGAgentTrainer(AgentTrainer):
                     target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i]) for i in range(self.n)]
 
                 # target critic
-                if self.args.critic_lstm:
-                    target_q_next = self.q_debug['target_q_values'](*(obs_next_n + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
-                else:
-                    target_q_next = self.q_debug['target_q_values'](*(obs_next_n + target_act_next_n))
-
+                obs_or_state_next = state_n if self.args.use_global_state else obs_n
+                try:
+                    if self.args.critic_lstm:
+                        target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
+                    else:
+                        target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n))
+                except Exception as e:
+                    k = 6
+                    pass
                 rew = np.reshape(rew, target_q_next.shape)
                 done = np.reshape(done, target_q_next.shape)
                 target_q += rew + self.args.gamma * (1.0 - done) * target_q_next
