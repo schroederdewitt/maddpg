@@ -1,6 +1,7 @@
 import numpy as np
 import random
-from baselines.common.segment_tree import SumSegmentTree, MinSegmentTree
+# from baselines.common.segment_tree import SumSegmentTree, MinSegmentTree
+from maddpg.common.segment_tree import SumSegmentTree, MinSegmentTree
 
 class _ReplayBuffer(object):
     def __init__(self, size, experience_size, q_lstm_on, p_lstm_on):
