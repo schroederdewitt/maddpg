@@ -397,15 +397,16 @@ def _p_train(n_agents, make_state_ph_n, make_obs_ph_n, act_space_n, p_index, p_f
         act_test = U.function(inputs=[obs_ph_n[p_index], p_c_ph, p_h_ph], outputs=[act_test_sample, p_state_out])
 
         # Create callable functions
+        obs_or_state_lst = state_ph_n + obs_ph_n if use_global_state else obs_ph_n
         if p_lstm_on and q_lstm_on:
-            train = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss,
+            train = U.function(inputs=obs_or_state_lst + act_ph_n + q_c_ph_n + q_h_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss,
                                updates=[optimize_expr])
         elif p_lstm_on:
-            train = U.function(inputs=obs_or_state + act_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss, updates=[optimize_expr])
+            train = U.function(inputs=obs_or_state_lst + act_ph_n + p_c_ph_n + p_h_ph_n, outputs=loss, updates=[optimize_expr])
         elif q_lstm_on:
-            train = U.function(inputs=obs_or_state + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=loss, updates=[optimize_expr])
+            train = U.function(inputs=obs_or_state_lst + act_ph_n + q_c_ph_n + q_h_ph_n, outputs=loss, updates=[optimize_expr])
         else:
-            train = U.function(inputs=obs_or_state + act_ph_n, outputs=loss, updates=[optimize_expr])
+            train = U.function(inputs=obs_or_state_lst + act_ph_n, outputs=loss, updates=[optimize_expr])
 
         if p_lstm_on:
             act = U.function(inputs=[obs_ph_n[p_index], p_c_ph, p_h_ph], outputs=[act_sample, p_state_out])
@@ -689,7 +690,7 @@ class _RMADDPGAgentTrainer(AgentTrainer):
                     target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i]) for i in range(self.n)]
 
                 # target critic
-                obs_or_state_next = state_n if self.args.use_global_state else obs_n
+                obs_or_state_next = state_next_n if self.args.use_global_state else obs_next_n
                 try:
                     if self.args.critic_lstm:
                         target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
@@ -714,11 +715,12 @@ class _RMADDPGAgentTrainer(AgentTrainer):
                 else:
                     target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i]) for i in range(self.n)]
 
+                obs_or_state_next = state_next_n if self.args.use_global_state else obs_next_n
                 # target critic
                 if self.args.critic_lstm:
-                    target_q_next = self.q_debug['target_q_values'](*(state_n + obs_next_n + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
+                    target_q_next = self.q_debug['target_q_values'](*(state_next_n + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
                 else:
-                    target_q_next = self.q_debug['target_q_values'](*(state_n + obs_next_n + target_act_next_n))
+                    target_q_next = self.q_debug['target_q_values'](*(state_next_n + target_act_next_n))
 
                 rew = np.reshape(rew, target_q_next.shape)
                 done = np.reshape(done, target_q_next.shape)
@@ -726,19 +728,19 @@ class _RMADDPGAgentTrainer(AgentTrainer):
 
             target_q /= num_sample
 
-
+        obs_or_state = state_n if self.args.use_global_state else obs_n
         if self.args.critic_lstm and self.args.actor_lstm:
             q_loss = self.q_train(*(state_n + obs_n + act_n + q_c_in + q_h_in + [target_q])) # past p, q vals
-            p_loss = self.p_train(*(obs_n + act_n + q_c_in + q_h_in + p_c_in + p_h_in ))
+            p_loss = self.p_train(*(obs_or_state + act_n + q_c_in + q_h_in + p_c_in + p_h_in ))
         elif self.args.critic_lstm:
             q_loss = self.q_train(*(state_n + obs_n + act_n + q_c_in + q_h_in + [target_q])) # past p, q vals
-            p_loss = self.p_train(*(obs_n + act_n + q_c_in + q_h_in))
+            p_loss = self.p_train(*(obs_or_state + act_n + q_c_in + q_h_in))
         elif self.args.actor_lstm:
             q_loss = self.q_train(*(state_n + obs_n + act_n + [target_q])) # past p, q vals
-            p_loss = self.p_train(*(obs_n + act_n + p_c_in + p_h_in ))
+            p_loss = self.p_train(*(obs_or_state + act_n + p_c_in + p_h_in ))
         else:
             q_loss = self.q_train(*(state_n + obs_n + act_n + [target_q])) # past p, q vals
-            p_loss = self.p_train(*(obs_n + act_n))
+            p_loss = self.p_train(*(obs_or_state + act_n))
 
         self.p_update()
         self.q_update()
