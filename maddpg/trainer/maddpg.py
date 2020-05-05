@@ -679,55 +679,32 @@ class _RMADDPGAgentTrainer(AgentTrainer):
                 q_c_out.append(q_c_out_t)
                 q_h_out.append(q_h_out_t)
 
-        if not self.args.use_global_state:
-            # train q network
-            num_sample = 1
-            target_q = 0.0
-            for i in range(num_sample):
-                # target actor
-                if self.args.actor_lstm:
-                    target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i], p_c_out[i], p_h_out[i]) for i in range(self.n)] # next lstm state
-                else:
-                    target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i]) for i in range(self.n)]
+        # train q network
+        num_sample = 1
+        target_q = 0.0
+        for i in range(num_sample):
+            # target actor
+            if self.args.actor_lstm:
+                target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i], p_c_out[i], p_h_out[i]) for i in range(self.n)] # next lstm state
+            else:
+                target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i]) for i in range(self.n)]
 
-                # target critic
-                obs_or_state_next = state_next_n if self.args.use_global_state else obs_next_n
-                try:
-                    if self.args.critic_lstm:
-                        target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
-                    else:
-                        target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n))
-                except Exception as e:
-                    k = 6
-                    pass
-                rew = np.reshape(rew, target_q_next.shape)
-                done = np.reshape(done, target_q_next.shape)
-                target_q += rew + self.args.gamma * (1.0 - done) * target_q_next
-
-            target_q /= num_sample
-        else:
-            # train q network
-            num_sample = 1
-            target_q = 0.0
-            for i in range(num_sample):
-                # target actor
-                if self.args.actor_lstm:
-                    target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i], p_c_out[i], p_h_out[i]) for i in range(self.n)] # next lstm state
-                else:
-                    target_act_next_n = [agents[i].p_debug['target_act'](obs_next_n[i]) for i in range(self.n)]
-
-                obs_or_state_next = state_next_n if self.args.use_global_state else obs_next_n
-                # target critic
+            # target critic
+            obs_or_state_next = state_next_n if self.args.use_global_state else obs_next_n
+            try:
                 if self.args.critic_lstm:
-                    target_q_next = self.q_debug['target_q_values'](*(state_next_n + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
+                    target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n + q_c_out + q_h_out)) # take in next lstm state
                 else:
-                    target_q_next = self.q_debug['target_q_values'](*(state_next_n + target_act_next_n))
+                    target_q_next = self.q_debug['target_q_values'](*(obs_or_state_next + target_act_next_n))
+            except Exception as e:
+                k = 6
+                pass
+            rew = np.reshape(rew, target_q_next.shape)
+            done = np.reshape(done, target_q_next.shape)
+            target_q += rew + self.args.gamma * (1.0 - done) * target_q_next
 
-                rew = np.reshape(rew, target_q_next.shape)
-                done = np.reshape(done, target_q_next.shape)
-                target_q += rew + self.args.gamma * (1.0 - done) * target_q_next
+        target_q /= num_sample
 
-            target_q /= num_sample
 
         obs_or_state = state_n if self.args.use_global_state else obs_n
         if self.args.critic_lstm and self.args.actor_lstm:
