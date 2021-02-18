@@ -642,8 +642,6 @@ if __name__ == '__main__':
     #         break
 
     config_dict={}
-    config_dict["db_url"] = "mongodb://pymarlOwner:EMC7Jp98c8rE7FxxN7g82DT5spGsVr9A@gandalf.cs.ox.ac.uk:27017/pymarl"
-    config_dict["db_name"] = "pymarl"
 
     # If there is no url set for the mongodb, we cannot use it
     if not no_mongodb and "db_url" not in config_dict:
