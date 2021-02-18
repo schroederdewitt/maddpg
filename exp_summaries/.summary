@@ -1,0 +1,6 @@
+pymarl_path: /home/cs/Documents/maddpg
+python_path: :/maddpg
+results_path: /home/cs/Documents/maddpg/results
+    name: __run__17_11_18-17_56_13__repeat1
+    gpu: 0
+    docker_hash: btyn
